@@ -180,7 +180,7 @@ Promise.all([loadScript(PDFJS_URL), loadScript(PDFLIB_URL)])
   .catch(e=>setStatus('error','Library load failed: '+e.message));
 
 // ── 2. App state ──
-const PRESETS=['A/C','ACTUAL','AGTOW','ALERT LEVEL','ALTN','AMD','AMEND','APMS','APPLY','CAUTION','CCF','CDL','CFP PLAN','CHANGES','CLSD','CLOSED','CLOSURE','CRZ','DIFFERENCE','DISC','DO NOT USE','DOF','EASTBOUND','EDTO','EFB','ELDW','EMERGENCY','ENTRY POINT','ERA','ETP','FOM','ILS','KAL','KE NOT','KE ROUTE','LDW','MEL','MINIMA','MOD TURB','MTOW','NO AFFECTED','NO KE','NO OPS RTE','NOT AVBL','NOT TO','OVC','RA','REFILE','REFILE POINT','RESTRICTED','ROUTE','RQRD','RUNWAY','SH','TAKE OFF WEIGHT','TRIP','TS','UNRELIABLE','UNSERVICEABLE','WX DEV'];
+const PRESETS=['A/C','ACTUAL','AGTOW','ALERT LEVEL','ALTN','AMD','AMEND','AMDT','APMS','APPLY','CAUTION','CCF','CDL','CFP PLAN','CHANGES','CLSD','CLOSED','CLOSURE','COMMENT','CRZ','DIFFERENCE','DISC','DO NOT USE','DOF','EASTBOUND','EDTO','EFB','ELDW','EMERGENCY','ENTRY POINT','ERA','ETP','FOD','FOM','ILS','KAL','KE NOT','KE ROUTE','LDW','MEL','MINIMA','MOD TURB','MTOW','NO AFFECTED','NO KE','NO OPS RTE','NOT AVBL','NOT TO','OUT OF SERVICE','OUTAGE','OVC','RA','REFILE','REFILE POINT','RESTRICTED','ROUTE','RQRD','RUNWAY','SH','TAKE OFF WEIGHT','TOW','TRIP','TS','U/S','UNRELIABLE','UNSERVICEABLE','WX DEV'];
 const HL_COLORS=[[.36,.78,1],[.36,.78,1],[.36,.78,1],[.36,.78,1],[.36,.78,1],[.36,.78,1]];
 
 let sel=new Set(), custom=[], pdfBytes=null, fname='document', done=false, outBytes=null;
@@ -365,6 +365,49 @@ async function runHL(){
             totalHits++;
           }
         }
+      }
+    }
+
+    // ── Sentence highlight for CLSD / CLOSED ──
+    const SENTENCE_KW = ['CLSD', 'CLOSED'];
+    for(let pi = 0; pi < numPages; pi++){
+      const jsPage = await pdfJsDoc.getPage(pi + 1);
+      const vp = jsPage.getViewport({scale: 1.0});
+      const libPage = libPages[pi];
+      const {width: lw, height: lh} = libPage.getSize();
+      const sx = lw / vp.width;
+      const sy = lh / vp.height;
+      const content = await jsPage.getTextContent();
+
+      // Group items into lines by similar Y coordinate
+      const lineMap = {};
+      for(const item of content.items){
+        if(!item.str) continue;
+        const y = Math.round(item.transform[5]);
+        if(!lineMap[y]) lineMap[y] = [];
+        lineMap[y].push(item);
+      }
+
+      for(const yKey of Object.keys(lineMap)){
+        const lineItems = lineMap[yKey].sort((a,b) => a.transform[4] - b.transform[4]);
+        const lineText = lineItems.map(it => it.str).join(' ');
+        const hasKw = SENTENCE_KW.some(kw => new RegExp(`(?<![\\w/A-Za-z])${kw}(?![\\w/A-Za-z])`,'i').test(lineText));
+        if(!hasKw) continue;
+
+        // Draw highlight over the entire line
+        const minX = Math.min(...lineItems.map(it => it.transform[4]));
+        const maxX = Math.max(...lineItems.map(it => it.transform[4] + (it.width || 0)));
+        const itemY = lineItems[0].transform[5];
+        const itemH = Math.abs(lineItems[0].transform[3]) || 10;
+
+        libPage.drawRectangle({
+          x: minX * sx,
+          y: itemY * sy,
+          width: (maxX - minX) * sx,
+          height: Math.max(itemH * sy, 8),
+          color: PDFLib.rgb(0.36, 0.78, 1.0),
+          opacity: 0.4,
+        });
       }
     }
 

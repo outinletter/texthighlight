@@ -180,7 +180,7 @@ Promise.all([loadScript(PDFJS_URL), loadScript(PDFLIB_URL)])
   .catch(e=>setStatus('error','Library load failed: '+e.message));
 
 // ── 2. App state ──
-const PRESETS=['A/C','ACTUAL','AGTOW','ALERT LEVEL','ALTN','AMD','AMEND','AMDT','APMS','APPLY','CAUTION','CCF','CDL','CFP PLAN','CHANGES','CLOSURE','COMMENT','CRZ','DIFFERENCE','DISC','DO NOT USE','DOF','EASTBOUND','EDTO','EFB','ELDW','EMERGENCY','ENTRY POINT','ERA','ETP','FOD','FOM','ILS','KAL','KE NOT','KE ROUTE','LDW','MEL','MINIMA','MOD TURB','MTOW','NO AFFECTED','NO KE','NO OPS RTE','NOT AVBL','NOT TO','OUT OF SERVICE','OUTAGE','OVC','RA','REFILE','RESTRICTED','ROUTE','RQRD','RUNWAY','SH','TAKE OFF WEIGHT','TOW','TRIP','TS','U/S','UNRELIABLE','UNSERVICEABLE','WX DEV'];
+const PRESETS=['A/C','ACTUAL','AGTOW','ALERT LEVEL','ALTN','AMD','AMEND','AMDT','APMS','APPLY','CAUTION','CCF','CDL','CFP PLAN','CHANGES','CLOSURE','COMMENT','CRZ','DIFFERENCE','DISC','DO NOT USE','DOF','EASTBOUND','EDTO','EFB','ELDW','EMERGENCY','ENTRY POINT','ERA','ETP','FOD','FOM','ILS','KAL','KE NOT','KE ROUTE','LDW','MEL','MINIMA','MOD TURB','MTOW','NO AFFECTED','NO KE','NO OPS RTE','NOT AVBL','NOT TO','OUT OF SERVICE','OUTAGE','OVC','RA','REFILE','ROUTE','RQRD','RUNWAY','SH','TAKE OFF WEIGHT','TOW','TRIP','TS','U/S','UNRELIABLE','UNSERVICEABLE','WX DEV'];
 const HL_COLORS=[[.36,.78,1],[.36,.78,1],[.36,.78,1],[.36,.78,1],[.36,.78,1],[.36,.78,1]];
 
 let sel=new Set(), custom=[], pdfBytes=null, fname='document', done=false, outBytes=null;
@@ -369,7 +369,7 @@ async function runHL(){
     }
 
     // ── Sentence highlight for CLSD / CLOSED ──
-    const SENTENCE_KW = ['CLSD', 'CLOSED','restricted'];
+    const SENTENCE_KW = ['CLSD', 'CLOSED','restrict'];
     for(let pi = 0; pi < numPages; pi++){
       const jsPage = await pdfJsDoc.getPage(pi + 1);
       const vp = jsPage.getViewport({scale: 1.0});

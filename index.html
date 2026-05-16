@@ -369,7 +369,7 @@ async function runHL(){
     }
 
     // ── Sentence highlight for CLSD / CLOSED ──
-    const SENTENCE_KW = ['CLSD', 'CLOSED'];
+    const SENTENCE_KW = ['CLSD', 'CLOSED','restricted'];
     for(let pi = 0; pi < numPages; pi++){
       const jsPage = await pdfJsDoc.getPage(pi + 1);
       const vp = jsPage.getViewport({scale: 1.0});

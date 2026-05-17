@@ -419,7 +419,6 @@ body{
 </footer>
 
 <script>
-// 웹 콘솔 보안 경고 출력 가림 처리
 (()=> {const n=()=>{};console.log=n;console.warn=n;console.info=n;console.debug=n;})();
 
 let resolvedWorkerUrl = '';
@@ -631,7 +630,7 @@ function checkKeywordMatch(text, kw) {
   return re.test(text);
 }
 
-// 지능형 오프셋 감지 및 영문 텍스트 표준화 디코더
+// ── [지능형 오프셋 감지 및 영문 텍스트 표준화 디코더] ──
 function detectPageOffset(rawText) {
   const testKeywords = ["NOTAM", "PACKAGE", "PLAN", "FLIGHT", "KOREAN", "RELEASE", "WEATHER", "AIR", "ROUTE", "ALTN", "INFO"];
   let normalMatchCount = 0;
@@ -682,7 +681,7 @@ function decodeStr(str, offset) {
   return decoded;
 }
 
-// 공항 릴리즈 코드 기반 [출발, 도착] 자동 바인딩 규칙
+// ── [Rule 2] Extracts strictly in flight direction [Origin, Destination] ──
 async function extractReleaseAirportsByRule2(pdfJsDoc) {
   const airports = [];
   try {
@@ -696,8 +695,8 @@ async function extractReleaseAirportsByRule2(pdfJsDoc) {
       const releaseRegex = /I\s+HEREBY\s+RELEASE\s+(THE\s+)?FLIGHT\s+[A-Z0-9]+\/\d{2}[A-Z]{3},\s*([A-Z]{3})\/([A-Z]{3})/i;
       const m = releaseRegex.exec(decodedText);
       if (m) {
-        airports.push(m[2].toUpperCase().trim()); 
-        airports.push(m[3].toUpperCase().trim()); 
+        airports.push(m[2].toUpperCase().trim()); // Origin
+        airports.push(m[3].toUpperCase().trim()); // Destination
         break; 
       }
     }
@@ -714,8 +713,8 @@ async function extractReleaseAirportsByRule2(pdfJsDoc) {
           const fallbackRegex = /FLIGHT\s+RELEASE\s+[A-Z0-9]+\s+([A-Z]{3,4})\s*[\/-]\s*([A-Z]{3,4})/i;
           const m = fallbackRegex.exec(decodedText);
           if (m) {
-            airports.push(m[1].toUpperCase().trim().substring(0,3)); 
-            airports.push(m[2].toUpperCase().trim().substring(0,3)); 
+            airports.push(m[1].toUpperCase().trim().substring(0,3)); // Origin
+            airports.push(m[2].toUpperCase().trim().substring(0,3)); // Destination
             break;
           }
         }
@@ -892,6 +891,7 @@ async function runHL(){
       const isPackage3Page = (pkg3StartIdx !== -1 && pi >= pkg3StartIdx);
       const isDispatchPage = (dispatchReleaseIdx !== -1 && pi >= dispatchReleaseIdx && pi < dispatchEndIdx);
 
+      // Search layer repair: Re-inject original English text invisibly over the corrupted layers
       if (pageOffset !== 0) {
         for (const item of content.items) {
           const originalStr = decodeStr(item.str, pageOffset);
@@ -990,8 +990,8 @@ async function runHL(){
           continue; 
         }
 
-        const isParLine = /\/\s*[A-Z]{4}\s+FIR/i.test(lineText);
-        if (isParLine) {
+        const isFirLine = /\/\s*[A-Z]{4}\s+FIR/i.test(lineText);
+        if (isFirLine) {
           const minX = Math.min(...lineItems.map(it => it.transform[4]));
           const maxX = Math.max(...lineItems.map(it => it.transform[4] + (it.width || 0)));
           const itemY = line.y;
@@ -1140,6 +1140,7 @@ async function runHL(){
     const cfpPageIdx=bmPages['CFP PLAN'];
     let coaPageIdx=bmPages['COPY OF ATS'];
     
+    // 복수 페이지를 검색하여 "COPY OF ATS FPL, SUBMITTED AT" 문자가 포함된 실질적인 정확한 페이지 인덱스를 동적으로 타겟팅합니다.
     let resolvedCoaPageIdx = coaPageIdx !== undefined ? coaPageIdx : -1;
     let foundCoaPageOffset = 0;
     
@@ -1189,9 +1190,7 @@ async function runHL(){
         const depCode = detectedAirports[0];
         const arrCode = detectedAirports[1];
         
-        // [수정 완료] 노선이 겹치는 ALTN(교대공항) 섹션의 RKSI..SEL..RKSS 구문 침범을 원천 배제하는 정밀 정규식 설계
-        // 공항코드 뒤에 마침표 2개(..)가 오고, 중간에 비행 경로 명칭들이 오다가 최종적으로 목적지 공항코드(arrCode)에서 타이트하게 마무리됨.
-        // 추가로, 80페이지의 ALTN 경로 표기나 여타 텍스트와의 오탐지 경계를 확실히 분리하기 위해 Non-greedy 수량자 지정
+        // 노선이 겹치는 ALTN(교대공항) 섹션의 RKSI..SEL..RKSS 구문 침범을 원천 배제하는 정밀 정규식 설계
         const dynamicRouteRegex = new RegExp(`(${depCode}\\s+[A-Z0-9]+\\s+[A-Z0-9\\s\\.]*?\\.\\.\\s*${arrCode}\\b)`, 'i');
         const rMatch = cfpFullTextWithNewlines.match(dynamicRouteRegex);
         if (rMatch) {
@@ -1222,15 +1221,21 @@ async function runHL(){
         const coaVp=coaJsPage.getViewport({scale:1.0});
         const coaSy=coaH/coaVp.height;
 
-        const fontSize=8,lineH=fontSize*1.4,padding=8;
-        const pageMargin = 30; 
-        const maxWidth = coaW - (pageMargin * 2) - (padding * 2); 
+        // ── [변경 사양] 붙여넣는 텍스트 글꼴 크기를 1포인트 올려 9로 설정 (기존: 8) ──
+        const fontSize=9,lineH=fontSize*1.4,padding=8;
+        const pageMargin = 30; // 좌우 여백 설정
+        const maxWidth = coaW - (pageMargin * 2) - (padding * 2); // 순수 텍스트 표시 최대 가로너비 계산
         
-        // Helvetica Bold 장평 계수 기반 문자 제한폭 래핑 역산
+        // Helvetica Bold 기준의 실제 자구 너비 계수를 반영한 라인당 수용 글자수 역산
         const charsPerLine=Math.floor(maxWidth / (fontSize * 0.54));
         
+        // 정교한 고정폭 강제 슬라이싱 및 항공 토큰 줄바꿈 알고리즘 적용
         const wrapRouteText = (text, maxChars) => {
-          const rawWords = text.split(/\s+/);
+          // 줄바꿈 구조 및 불필요한 연속 공백을 정돈합니다.
+          const sanitizedText = text.replace(/\r?\n/g, " ").replace(/\s+/g, " ").trim();
+          
+          // 단어(Token) 목록을 추출하기 위해 공백으로 분할하되, 점("..")도 줄바꿈 가능한 경계선으로 인식하여 단어들로 쪼갭니다.
+          const rawWords = sanitizedText.split(" ");
           const tokens = [];
           for (const word of rawWords) {
             if (!word) continue;
@@ -1239,12 +1244,13 @@ async function runHL(){
               if (parts[i]) tokens.push(parts[i]);
               if (i < parts.length - 1) tokens.push("..");
             }
-            tokens.push(" "); 
+            tokens.push(" "); // 단어 사이 공백 유지 토큰
           }
           if (tokens[tokens.length - 1] === " ") tokens.pop();
-          
+
           const lines = [];
           let currentLine = "";
+          
           for (let token of tokens) {
             if (token === " ") {
               if (currentLine.length > 0 && !currentLine.endsWith("..") && !currentLine.endsWith(" ")) {
@@ -1252,38 +1258,50 @@ async function runHL(){
               }
               continue;
             }
+            
             if (token === "..") {
-              if (currentLine.endsWith(" ")) currentLine = currentLine.slice(0, -1);
-            }
-            if (token.length > maxChars) {
-              while (token.length > maxChars) {
-                const spaceLeft = maxChars - currentLine.length;
-                if (spaceLeft > 3) {
-                  currentLine += token.substring(0, spaceLeft);
-                  lines.push(currentLine.trim());
-                  currentLine = "";
-                  token = token.substring(spaceLeft);
-                } else {
-                  if (currentLine) lines.push(currentLine.trim());
-                  currentLine = token.substring(0, maxChars);
-                  lines.push(currentLine.trim());
-                  currentLine = "";
-                  token = token.substring(maxChars);
-                }
+              if (currentLine.endsWith(" ")) {
+                currentLine = currentLine.slice(0, -1);
               }
             }
+            
+            // 토큰(웨이포인트 명칭 등) 자체가 최대 허용 수치(charsPerLine)를 넘어가는 경우 강제 마크 슬라이싱
+            if (token.length > maxChars) {
+              // 현재 누적 줄이 있을 경우 먼저 푸시
+              if (currentLine.length > 0) {
+                lines.push(currentLine.trim());
+                currentLine = "";
+              }
+              
+              let tempWord = token;
+              while (tempWord.length > maxChars) {
+                lines.push(tempWord.substring(0, maxChars));
+                tempWord = tempWord.substring(maxChars);
+              }
+              currentLine = tempWord;
+              continue;
+            }
+            
+            // 한 줄에 들어갈 누적 글자 수가 한계를 넘어가면 개행 처리
             if (currentLine.length + token.length > maxChars) {
-              if (currentLine.length > 0) lines.push(currentLine.trim());
+              if (currentLine.length > 0) {
+                lines.push(currentLine.trim());
+              }
               currentLine = token;
             } else {
               currentLine += token;
             }
           }
-          if (currentLine.trim().length > 0) lines.push(currentLine.trim());
-          return lines;
+          
+          if (currentLine.trim().length > 0) {
+            lines.push(currentLine.trim());
+          }
+          
+          // ".." 앞뒤에 불필요하게 가공 단계에서 스페이스가 새어 들어간 경우를 완전히 빌드 클린합니다.
+          return lines.map(line => line.replace(/\s*\.\.\s*/g, '..'));
         };
 
-        // 원본 줄바꿈 \n 구조를 일차적으로 쪼갠 뒤 래퍼 적용 (줄바꿈 원본 그대로 이식)
+        // 원본 줄바꿈 \n 구조를 일차적으로 쪼갠 뒤 고정폭 토크나이저를 적용합니다.
         const originalRawLines = extractedRoute.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         const lines = [];
         for (const rawLine of originalRawLines) {

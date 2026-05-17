@@ -3,210 +3,550 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Text Highlighter</title>
+<title>Aviation PDF Highlighter (Offline Ready)</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,sans-serif;background:#0f1117;color:#e8eaf0;min-height:100vh;display:flex;flex-direction:column}
-.header{background:linear-gradient(135deg,#1a1d2e,#16213e);border-bottom:1px solid #2a2f4a;padding:28px 0 24px;text-align:center}
-.header h1{font-size:38px;font-weight:700;letter-spacing:3px;color:#fff}
-.header h1 span{color:#5b8dee}
-.header p{font-size:13px;color:#6b7280;margin-top:6px}
-.body{flex:1;padding:28px 16px 40px}
-.app{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
-.card{background:#1a1d2e;border-radius:14px;border:1px solid #2a2f4a;padding:20px}
-.card-title{font-size:11px;font-weight:700;color:#5b8dee;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
-.upload-area{border:1.5px dashed #2e3354;border-radius:8px;padding:14px 20px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:14px}
-.upload-area:hover{border-color:#5b8dee;background:rgba(91,141,238,.05)}
-.upload-area.has-file{border-color:#34c78a;border-style:solid;background:rgba(52,199,138,.05)}
+body{
+  font-family:system-ui, -apple-system, sans-serif;
+  background:#0b0f19;
+  color:#e2e8f0;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+.header{
+  background:linear-gradient(135deg,#111827,#0f172a);
+  border-bottom:1px solid #1e293b;
+  padding:24px 16px;
+  text-align:center;
+}
+.header h1{
+  font-size:28px;
+  font-weight:800;
+  letter-spacing:1px;
+  color:#fff;
+}
+.header h1 span{
+  color:#3b82f6;
+}
+.header p{
+  font-size:12px;
+  color:#94a3b8;
+  margin-top:6px;
+}
+.body{
+  flex:1;
+  padding:24px 16px 40px;
+}
+.app{
+  max-width:960px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:20px;
+}
+@media(min-width:768px){
+  .app{
+    grid-template-columns: 1fr 1fr;
+  }
+  .full-width{
+    grid-column: span 2;
+  }
+}
+.card{
+  background:#111827;
+  border-radius:14px;
+  border:1px solid #1e293b;
+  padding:20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+.card-title{
+  font-size:11px;
+  font-weight:700;
+  color:#3b82f6;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.upload-area{
+  border:2px dashed #334155;
+  border-radius:10px;
+  padding:20px;
+  cursor:pointer;
+  transition:.2s;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  background:#0f172a;
+}
+.upload-area:hover{
+  border-color:#3b82f6;
+  background:rgba(59,130,246,.05);
+}
+.upload-area.has-file{
+  border-color:#10b981;
+  border-style:solid;
+  background:rgba(16,185,129,.05);
+}
 .upload-area input{display:none}
-.upload-icon{font-size:22px;flex-shrink:0}
+.upload-icon{font-size:24px;flex-shrink:0}
 .upload-text{flex:1}
-.upload-label{font-size:13px;color:#c0c4d8;font-weight:500}
-.upload-sub{font-size:11px;color:#4b5270;margin-top:2px}
-.file-name{font-size:12px;font-weight:600;color:#34c78a;margin-top:2px}
-.upload-btn-label{padding:7px 16px;border:1px solid #5b8dee;border-radius:8px;background:rgba(91,141,238,.1);color:#5b8dee;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer}
-.upload-btn-label:hover{background:#5b8dee;color:#fff}
-.hl-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.hl-label{font-size:15px;font-weight:700;color:#e8eaf0;flex:1;min-width:140px}
-.toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+.upload-label{font-size:13px;color:#cbd5e1;font-weight:600}
+.upload-sub{font-size:11px;color:#64748b;margin-top:2px}
+.file-name{font-size:12px;font-weight:600;color:#10b981;margin-top:4px}
+.upload-btn-label{
+  padding:8px 14px;
+  border:1px solid #3b82f6;
+  border-radius:8px;
+  background:rgba(59,130,246,.1);
+  color:#3b82f6;
+  font-size:12px;
+  font-weight:600;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.upload-btn-label:hover{
+  background:#3b82f6;
+  color:#fff;
+}
+.hl-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.hl-label{
+  font-size:14px;
+  font-weight:600;
+  color:#f1f5f9;
+  flex:1;
+  min-width:140px;
+}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0}
-.slider{position:absolute;inset:0;background:#2e3354;border-radius:22px;cursor:pointer;transition:.25s}
-.slider:before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#6b7280;border-radius:50%;transition:.25s}
-.toggle input:checked+.slider{background:#5b8dee}
-.toggle input:checked+.slider:before{transform:translateX(18px);background:#fff}
+.slider{
+  position:absolute;
+  inset:0;
+  background:#334155;
+  border-radius:24px;
+  cursor:pointer;
+  transition:.25s;
+}
+.slider:before{
+  content:'';
+  position:absolute;
+  width:18px;
+  height:18px;
+  left:3px;
+  top:3px;
+  background:#94a3b8;
+  border-radius:50%;
+  transition:.25s;
+}
+.toggle input:checked+.slider{background:#3b82f6}
+.toggle input:checked+.slider:before{transform:translateX(20px);background:#fff}
+
 .dropdown-wrap{position:relative}
-.dropdown-btn{padding:7px 14px;border:1px solid #2e3354;border-radius:8px;background:#12152a;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;color:#c0c4d8;transition:.15s}
-.dropdown-btn:hover{border-color:#5b8dee;color:#5b8dee}
-.badge-count{background:#5b8dee;color:#fff;border-radius:10px;font-size:11px;padding:1px 8px;font-weight:700}
-.badge-count.all{background:#34c78a}
+.dropdown-btn{
+  padding:8px 14px;
+  border:1px solid #334155;
+  border-radius:8px;
+  background:#0f172a;
+  font-size:13px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#cbd5e1;
+  transition:.15s;
+}
+.dropdown-btn:hover{border-color:#3b82f6;color:#3b82f6}
+.badge-count{
+  background:#3b82f6;
+  color:#fff;
+  border-radius:10px;
+  font-size:11px;
+  padding:1px 8px;
+  font-weight:700;
+}
+.badge-count.all{background:#10b981}
 .arrow{font-size:9px;transition:.2s}
 .dropdown-btn.open .arrow{transform:rotate(180deg)}
-.dropdown-menu{position:fixed;background:#1e2235;border:1px solid #2e3354;border-radius:12px;padding:10px 0;min-width:260px;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,.4);max-height:60vh;overflow-y:auto;text-align:left}
-.menu-section{padding:6px 12px;font-size:10px;font-weight:700;color:#4b5270;letter-spacing:1px;text-transform:uppercase}
-.menu-item{display:flex;align-items:center;gap:8px;padding:6px 14px;cursor:pointer;font-size:12.5px;color:#c0c4d8;transition:.1s}
-.menu-item:hover{background:rgba(91,141,238,.08);color:#e8eaf0}
-.menu-item input[type=checkbox]{width:14px;height:14px;cursor:pointer;accent-color:#5b8dee;flex-shrink:0}
-.menu-divider{height:1px;background:#242840;margin:8px 0}
-.custom-add-wrap{padding:8px 12px}
+.dropdown-menu{
+  position:absolute;
+  background:#1e293b;
+  border:1px solid #334155;
+  border-radius:12px;
+  padding:10px 0;
+  width:260px;
+  z-index:1000;
+  box-shadow:0 10px 15px -3px rgba(0,0,0,.5);
+  max-height:250px;
+  overflow-y:auto;
+  text-align:left;
+  right:0;
+  top:calc(100% + 6px);
+}
+.menu-section{padding:6px 14px;font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase}
+.menu-item{display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;font-size:13px;color:#cbd5e1;transition:.1s}
+.menu-item:hover{background:rgba(59,130,246,.1);color:#fff}
+.menu-item input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:#3b82f6;flex-shrink:0}
+
+.custom-add-wrap{padding:0}
 .custom-add-row{display:flex;gap:6px}
-.custom-add-row input{flex:1;background:#12152a;border:1px solid #2e3354;border-radius:6px;padding:6px 10px;font-size:12px;color:#e8eaf0;outline:none;transition:.15s}
-.custom-add-row input:focus{border-color:#5b8dee}
-.custom-add-row input::placeholder{color:#4b5270}
-.custom-add-row button{padding:6px 12px;border:none;border-radius:6px;background:#5b8dee;color:#fff;font-size:12px;font-weight:600;cursor:pointer}
-.tag-list{display:flex;flex-wrap:wrap;gap:5px;padding:6px 12px 4px}
-.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:600}
-.tag-remove{cursor:pointer;opacity:.5;font-size:10px}
+.custom-add-row input{
+  flex:1;
+  background:#0f172a;
+  border:1px solid #334155;
+  border-radius:8px;
+  padding:8px 12px;
+  font-size:13px;
+  color:#fff;
+  outline:none;
+  transition:.15s;
+}
+.custom-add-row input:focus{border-color:#3b82f6}
+.custom-add-row input::placeholder{color:#475569}
+.custom-add-row button{
+  padding:8px 16px;
+  border:none;
+  border-radius:8px;
+  background:#3b82f6;
+  color:#fff;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+}
+.custom-add-row button:hover{background:#2563eb}
+.tag-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:600}
+.tag-remove{cursor:pointer;opacity:.6;font-size:11px}
 .tag-remove:hover{opacity:1}
-.btn-row{display:grid;grid-template-columns:1fr;gap:12px}
-.action-btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:14px;font-weight:700;letter-spacing:.5px;transition:.25s;display:flex;align-items:center;justify-content:center;gap:8px;cursor:not-allowed}
-@media(max-width:600px){.action-btn{padding:10px 6px;font-size:12px;letter-spacing:0}}
-.run-btn{background:#2e3354;color:#4b5270}
-.run-btn.active{background:linear-gradient(90deg,#34c78a,#20a870);color:#fff;cursor:pointer}
+
+.action-btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:.5px;
+  transition:.25s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  cursor:not-allowed;
+}
+.run-btn{background:#334155;color:#64748b}
+.run-btn.active{background:linear-gradient(90deg,#10b981,#059669);color:#fff;cursor:pointer}
 .run-btn.active:hover{filter:brightness(1.1);transform:translateY(-1px)}
-.dl-btn{background:#2e3354;color:#4b5270}
-.dl-btn.active{background:linear-gradient(90deg,#5b8dee,#4a7de0);color:#fff;cursor:pointer}
+.dl-btn{background:#334155;color:#64748b}
+.dl-btn.active{background:linear-gradient(90deg,#3b82f6,#2563eb);color:#fff;cursor:pointer}
 .dl-btn.active:hover{filter:brightness(1.1);transform:translateY(-1px)}
-.status-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:500;margin-top:12px;background:#12152a;border:1px solid #1e2235;color:#4b5270;min-height:40px}
-.status-bar.ready{color:#5b8dee;border-color:#2e3354}
-.status-bar.processing{color:#ffa94d;border-color:#3a2e1a}
-.status-bar.done{color:#34c78a;border-color:#1a3a2e}
-.status-bar.error{color:#ff8fa3;border-color:#3a1a1a}
+
+.status-bar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 14px;
+  border-radius:10px;
+  font-size:12.5px;
+  font-weight:500;
+  margin-top:12px;
+  background:#0f172a;
+  border:1px solid #1e293b;
+  color:#64748b;
+  min-height:44px;
+}
+.status-bar.ready{color:#3b82f6;border-color:#334155}
+.status-bar.processing{color:#f59e0b;border-color:#451a03}
+.status-bar.done{color:#10b981;border-color:#064e3b}
+.status-bar.error{color:#ef4444;border-color:#7f1d1d}
 .status-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
 .status-bar.processing .status-dot{animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Interactive Preview Styles */
+.preview-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+.preview-nav{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.nav-btn{
+  background:#334155;
+  color:#cbd5e1;
+  border:none;
+  border-radius:6px;
+  padding:4px 10px;
+  font-size:11px;
+  cursor:pointer;
+}
+.nav-btn:hover{background:#475569}
+.nav-btn:disabled{opacity:0.3;cursor:not-allowed}
+.preview-container{
+  background:#0f172a;
+  border:1px solid #334155;
+  border-radius:10px;
+  padding:12px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:300px;
+  max-height:550px;
+  overflow:auto;
+}
+#previewCanvas{
+  max-width:100%;
+  height:auto;
+  box-shadow:0 10px 15px -3px rgba(0,0,0,0.5);
+  background:white;
+}
+.offline-instruction {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  font-size: 11px;
+  color: #93c5fd;
+  line-height: 1.5;
+}
+.offline-instruction b {
+  color: #fff;
+}
+.route-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #3b82f6;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
 </style>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4598204267821121" crossorigin="anonymous"></script>
 </head>
 <body>
+
 <div class="header">
-  <h1>TEXT <span>HIGHLIGHTER</span></h1>
-  <p>Quickly highlight keywords in your PDF document</p>
+  <h1>FLIGHT <span>HIGHLIGHTER PRO</span></h1>
+  <p>Offline Ready Smart NOTAM Highlighting & CFP Bookmark Generator</p>
 </div>
-<div class="body"><div class="app">
 
-  <div class="card">
-    <div class="card-title">PDF UPLOAD</div>
-    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fi').click()">
-      <div class="upload-icon">📄</div>
-      <div class="upload-text">
-        <div class="upload-label">Select a PDF file or drag and drop</div>
-        <div class="upload-sub">Supported format: .pdf</div>
-        <div class="file-name" id="fileName"></div>
+<div class="body">
+  <div class="app">
+    
+    <!-- Offline Guide Panel -->
+    <div class="card full-width">
+      <div class="card-title">🔌 오프라인 실행 가이드 (EFB 최적화)</div>
+      <div class="offline-instruction">
+        본 앱은 <b>100% 브라우저 메모리</b> 상에서 로컬 연산되므로 업로드한 비행 서류가 서버에 저장되지 않아 보안상 안전합니다.<br>
+        <b>완전한 오프라인 상태(비행기 안)에서 정상 가동하려면:</b><br>
+        1. 아래 파일들을 미리 인터넷 다운로드하여 이 HTML 파일과 <b>동일한 폴더</b>에 저장해 두세요.<br>
+        • <b>pdf.min.js</b> (<span style="user-select:all; background:#0f172a; padding:1px 4px; border-radius:3px;">https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js</span>)<br>
+        • <b>pdf.worker.min.js</b> (<span style="user-select:all; background:#0f172a; padding:1px 4px; border-radius:3px;">https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js</span>)<br>
+        • <b>pdf-lib.min.js</b> (<span style="user-select:all; background:#0f172a; padding:1px 4px; border-radius:3px;">https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js</span>)<br>
+        2. 오프라인 시 시스템이 감지하여 로컬 스크립트로 즉시 로드합니다.
       </div>
-      <span class="upload-btn-label">Browse</span>
-      <input type="file" id="fi" accept=".pdf">
     </div>
-  </div>
 
-  <div class="card">
-    <div class="card-title">HIGHLIGHT SETTINGS</div>
-    <div class="hl-row">
-      <label class="toggle"><input type="checkbox" id="hlEnabled"><span class="slider"></span></label>
-      <span class="hl-label">NOTAM HIGHLIGHT</span>
-      <div class="dropdown-wrap">
-        <button class="dropdown-btn" id="dropBtn" onclick="toggleDD()">
-          Select Words <span class="badge-count" id="selCount">0</span><span class="arrow"> ▼</span>
-        </button>
-        <div class="dropdown-menu" id="dropMenu" style="display:none">
-          <div class="menu-section">NOTAM KEYWORDS</div>
-          <div id="presetList"></div>
+    <!-- Column Left: Settings and Input -->
+    <div class="card">
+      <div class="card-title">📄 1. PDF FLIGHT PACKAGE</div>
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('fi').click()">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">
+          <div class="upload-label">Select a PDF file or drag & drop</div>
+          <div class="upload-sub">Supported format: .pdf only</div>
+          <div class="file-name" id="fileName"></div>
+        </div>
+        <span class="upload-btn-label">Browse</span>
+        <input type="file" id="fi" accept=".pdf">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚙️ 2. NOTAM HIGHLIGHT SETTINGS</div>
+      <div class="hl-row">
+        <label class="toggle"><input type="checkbox" id="hlEnabled"><span class="slider"></span></label>
+        <span class="hl-label">NOTAM KEYWORDS ACTIVE</span>
+        <div class="dropdown-wrap">
+          <button class="dropdown-btn" id="dropBtn" onclick="toggleDD()">
+            Select Words <span class="badge-count" id="selCount">0</span><span class="arrow"> ▼</span>
+          </button>
+          <div class="dropdown-menu" id="dropMenu" style="display:none">
+            <div class="menu-section">NOTAM KEYWORDS</div>
+            <div id="presetList"></div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="card">
-    <div class="card-title">CUSTOM WORDS</div>
-    <div class="custom-add-wrap" style="padding:0 0 10px">
-      <div class="custom-add-row">
-        <input type="text" id="cwInput" placeholder="Enter words (comma or space separated)">
-        <button onclick="addCustom()">Add</button>
+    <div class="card">
+      <div class="card-title">✏️ 3. ADD CUSTOM WORD TAGS</div>
+      <div class="custom-add-wrap">
+        <div class="custom-add-row">
+          <input type="text" id="cwInput" placeholder="Enter keywords (comma or space separated)">
+          <button onclick="addCustom()">Add</button>
+        </div>
+      </div>
+      <div class="tag-list" id="tagList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        🚀 4. RUN ENGINE
+        <span id="routeBadgeContainer"></span>
+      </div>
+      <button class="action-btn run-btn" id="runBtn" onclick="handleBtn()">▶ RUN HIGHLIGHTER</button>
+      <div class="status-bar" id="sb">
+        <div class="status-dot"></div>
+        <span id="st">Engine ready. Select keywords and upload PDF to start.</span>
       </div>
     </div>
-    <div class="tag-list" id="tagList" style="padding:0"></div>
-  </div>
 
-  <div class="card">
-    <div class="btn-row">
-      <button class="action-btn run-btn" id="runBtn" onclick="handleBtn()">▶ RUN</button>
+    <!-- PDF Save Panel -->
+    <div class="card" id="previewCard" style="display:none">
+      <div class="card-title">💾 5. SAVE MODIFIED PDF</div>
+      <p style="font-size:12px;color:#94a3b8;margin-bottom:14px">
+        자동 다운로드가 막힌 경우 아래 버튼을 직접 탭하여 저장/공유하십시오.
+      </p>
+      <button class="action-btn dl-btn active" onclick="dlPDF()">
+        💾 Save / Share PDF
+      </button>
     </div>
-    <div class="status-bar" id="sb"><div class="status-dot"></div><span id="st">Select words and upload a PDF to get started</span></div>
+
+    <!-- Interactive Canvas Preview Pane -->
+    <div class="card" id="canvasCard" style="display:none">
+      <div class="preview-header">
+        <div class="card-title" style="margin-bottom:0">👁️ LIVE PREVIEW</div>
+        <div class="preview-nav">
+          <button class="nav-btn" id="prevPage" onclick="changePage(-1)">◀ Prev</button>
+          <span id="pageIndicator" style="font-size:11px;color:#cbd5e1">Page 1/1</span>
+          <button class="nav-btn" id="nextPage" onclick="changePage(1)">Next ▶</button>
+        </div>
+      </div>
+      <div class="preview-container">
+        <canvas id="previewCanvas"></canvas>
+      </div>
+    </div>
+
   </div>
+</div>
 
-  <!-- PDF Save Panel -->
-  <div class="card" id="previewCard" style="display:none">
-    <div class="card-title">SAVE PDF</div>
-    <p style="font-size:13px;color:#c0c4d8;margin-bottom:14px">
-      If the save dialog didn't appear automatically, tap the button below.
-    </p>
-    <button class="action-btn dl-btn active" onclick="dlPDF()"
-       style="cursor:pointer;">
-      📄 Save / Share PDF
-    </button>
-  </div>
-
-</div></div>
-
-<footer style="text-align:center;padding:20px 0 28px;color:#4b5270;font-size:12px">
-  © 2025 Text Highlighter &nbsp;|&nbsp; <i><a href="mailto:bongsjeon@koreanair.com" style="color:#5b8dee;text-decoration:none">bongsjeon@koreanair.com</a></i>
+<footer style="text-align:center;padding:24px 0;color:#475569;font-size:12px;border-top:1px solid #1e293b;background:#070b13">
+  © 2026 EFB Systems &nbsp;|&nbsp; <i><a href="mailto:bongsjeon@koreanair.com" style="color:#3b82f6;text-decoration:none">bongsjeon@koreanair.com</a></i>
 </footer>
+
 <script>
-// Suppress console output
-(()=>{const n=()=>{};console.log=n;console.warn=n;console.info=n;console.debug=n;})();
+// Suppress console output for memory optimization
+(()=> {const n=()=>{};console.log=n;console.warn=n;console.info=n;console.debug=n;})();
 
-// ── 1. Load libraries dynamically and wait for both ──
-const PDFJS_URL  = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
-const PDFLIB_URL = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
+let resolvedWorkerUrl = '';
+let libsReady = false;
 
-function loadScript(src){
-  return new Promise((res,rej)=>{
-    const s=document.createElement('script');
-    s.src=src;
-    s.crossOrigin='anonymous';
-    s.onload=()=>res();
-    s.onerror=()=>rej(new Error('Failed: '+src));
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.crossOrigin = 'anonymous';
+    s.onload = () => resolve(src);
+    s.onerror = () => reject(new Error('Failed to load: ' + src));
     document.head.appendChild(s);
   });
 }
 
-let libsReady=false;
+async function initLibraries() {
+  try {
+    await loadScript('./pdf.min.js');
+  } catch (e) {
+    try {
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js');
+    } catch (err) {
+      setStatus('error', 'PDF.js 메인 엔진 로드 실패. 인터넷 연결 혹은 오프라인 가이드 파일 상태를 확인해 주세요.');
+      return;
+    }
+  }
 
-Promise.all([loadScript(PDFJS_URL), loadScript(PDFLIB_URL)])
-  .then(()=>{
-    pdfjsLib.GlobalWorkerOptions.workerSrc='';
-    libsReady=true;
-    setStatus('','Select words and upload a PDF to get started');
-  })
-  .catch(e=>setStatus('error','Library load failed: '+e.message));
+  try {
+    await loadScript('./pdf.worker.min.js');
+    resolvedWorkerUrl = './pdf.worker.min.js';
+  } catch (e) {
+    try {
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js');
+      resolvedWorkerUrl = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    } catch (err) {
+      console.warn('Worker script could not be pre-loaded.');
+    }
+  }
 
-// ── 2. App state ──
+  try {
+    await loadScript('./pdf-lib.min.js');
+  } catch (e) {
+    try {
+      await loadScript('https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js');
+    } catch (err) {
+      setStatus('error', 'PDF-Lib 엔진 로드 실패. 인터넷 연결 혹은 오프라인 가이드 파일 상태를 확인해 주세요.');
+      return;
+    }
+  }
+
+  if (window.location.protocol === 'file:') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+  } else {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = resolvedWorkerUrl || 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+  }
+
+  libsReady = true;
+  setStatus('ready', 'Engine ready. Upload PDF to start.');
+}
+
+initLibraries();
+
+// ── App State ──
 const PRESETS=['A/C','ACTUAL','AGTOW','ALERT LEVEL','ALTN','AMD','AMEND','AMDT','APMS','APPLY','CAUTION','CCF','CDL','CFP PLAN','CHANGES','CLOSURE','COMMENT','CRZ','DIFFERENCE','DISC','DO NOT USE','DOF','EASTBOUND','EDTO','EFB','ELDW','EMERGENCY','ENTRY POINT','ERA','ETP','FOD','FOM','ILS','KAL','KE NOT','KE ROUTE','LDW','MEL','MINIMA','MOD TURB','MTOW','NO AFFECTED','NO KE','NO OPS RTE','NOT AVBL','NOT TO','OUT OF SERVICE','OUTAGE','OVC','RA','REFILE','ROUTE','RQRD','RUNWAY','SH','TAKE OFF WEIGHT','TOW','TRIP','TS','U/S','UNRELIABLE','UNSERVICEABLE','WX DEV'];
 const HL_COLORS=[[.36,.78,1],[.36,.78,1],[.36,.78,1],[.36,.78,1],[.36,.78,1],[.36,.78,1]];
 
 let sel=new Set(), custom=[], pdfBytes=null, fname='document', done=false, outBytes=null;
+let currentPreviewPage = 1, totalPreviewPages = 1, pdfJsDocObj = null;
+let detectedAirports = []; // 자동 추출된 [출발공항, 도착공항] 배열 저장
 
 function canRun(){return sel.size>0 && pdfBytes!==null;}
 function updRun(){document.getElementById('runBtn').className='action-btn run-btn'+(canRun()?' active':'');}
-function updDl(){}
 function handleBtn(){if(done)dlPDF();else runHL();}
+
 function setStatus(cls,txt){
   const b=document.getElementById('sb');
   b.className='status-bar'+(cls?' '+cls:'');
   document.getElementById('st').textContent=txt;
 }
 
-// Presets
+// Populate Presets inside dropdown
 const pl=document.getElementById('presetList');
 PRESETS.forEach((w,i)=>{
   const d=document.createElement('div');d.className='menu-item';
   d.innerHTML=`<input type="checkbox" id="p${i}"><label for="p${i}" style="cursor:pointer;flex:1">${w}</label>`;
   d.querySelector('input').addEventListener('change',e=>{
     e.target.checked?sel.add(w):sel.delete(w);
-    updBadge();done=false;updRun();updDl();
+    updBadge();done=false;updRun();
   });
   pl.appendChild(d);
 });
 
+// Master switch toggle
 document.getElementById('hlEnabled').addEventListener('change',e=>{
   if(e.target.checked){
     PRESETS.forEach(w=>sel.add(w));
@@ -216,7 +556,7 @@ document.getElementById('hlEnabled').addEventListener('change',e=>{
     sel.clear();
     pl.querySelectorAll('input').forEach(c=>c.checked=false);
   }
-  updBadge();done=false;updRun();updDl();
+  updBadge();done=false;updRun();
 });
 
 function updBadge(){
@@ -224,40 +564,20 @@ function updBadge(){
   el.textContent=t;
   el.className='badge-count'+(t>0&&t>=PRESETS.length+custom.length?' all':'');
 }
+
 function toggleDD(){
   const m=document.getElementById('dropMenu'),b=document.getElementById('dropBtn');
   const o=m.style.display==='none';
-  if(o){
-    const rect=b.getBoundingClientRect();
-    const menuW=Math.min(280,window.innerWidth-16);
-    let left=rect.right-menuW;
-    if(left<8)left=8;
-    m.style.width=menuW+'px';
-    m.style.top=(rect.bottom+6)+'px';
-    m.style.left=left+'px';
-  }
   m.style.display=o?'block':'none';
   b.classList.toggle('open',o);
 }
+
 document.addEventListener('click',e=>{
   if(!e.target.closest('.dropdown-wrap')){
     document.getElementById('dropMenu').style.display='none';
     document.getElementById('dropBtn').classList.remove('open');
   }
 });
-function updateDDPos(){
-  const m=document.getElementById('dropMenu');
-  if(m.style.display==='none')return;
-  const b=document.getElementById('dropBtn');
-  const rect=b.getBoundingClientRect();
-  const menuW=Math.min(280,window.innerWidth-16);
-  let left=rect.right-menuW;
-  if(left<8)left=8;
-  m.style.top=(rect.bottom+6)+'px';
-  m.style.left=left+'px';
-}
-window.addEventListener('scroll',updateDDPos,true);
-window.addEventListener('resize',updateDDPos);
 
 function addCustom(){
   const inp=document.getElementById('cwInput');
@@ -265,9 +585,10 @@ function addCustom(){
     .forEach(w=>{if(!custom.includes(w)&&!PRESETS.includes(w))custom.push(w);});
   inp.value='';
   custom.forEach(w=>sel.add(w));
-  renderTags();updBadge();done=false;updRun();updDl();
+  renderTags();updBadge();done=false;updRun();
 }
 document.getElementById('cwInput').addEventListener('keydown',e=>{if(e.key==='Enter')addCustom();});
+
 function renderTags(){
   const list=document.getElementById('tagList');list.innerHTML='';
   const tc=[['#ffe066','#1a1400'],['#5bde8a','#062210'],['#ff8fa3','#2a0008'],['#5bc8ff','#001a26'],['#ffa94d','#2a1000'],['#c084fc','#1a0030']];
@@ -279,12 +600,12 @@ function renderTags(){
     list.appendChild(t);
   });
 }
-function rmCustom(i){sel.delete(custom[i]);custom.splice(i,1);renderTags();updBadge();done=false;updRun();updDl();}
+function rmCustom(i){sel.delete(custom[i]);custom.splice(i,1);renderTags();updBadge();done=false;updRun();}
 
-// File upload
+// File Upload Operations
 const fi=document.getElementById('fi'),ua=document.getElementById('uploadArea');
 fi.addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0]);});
-ua.addEventListener('dragover',e=>{e.preventDefault();ua.style.borderColor='#5b8dee';});
+ua.addEventListener('dragover',e=>{e.preventDefault();ua.style.borderColor='#3b82f6';});
 ua.addEventListener('dragleave',()=>{ua.style.borderColor='';});
 ua.addEventListener('drop',e=>{
   e.preventDefault();ua.style.borderColor='';
@@ -295,29 +616,85 @@ function loadFile(file){
   fname=file.name.replace(/\.pdf$/i,'');
   document.getElementById('fileName').textContent=file.name;
   ua.classList.add('has-file');
-  pdfBytes=null;done=false;outBytes=null;
-  updRun();updDl();
-  setStatus('processing','Loading PDF...');
+  pdfBytes=null;done=false;outBytes=null;detectedAirports=[];
+  document.getElementById('routeBadgeContainer').innerHTML = '';
+  updRun();
+  setStatus('processing','Loading local PDF file structure...');
   const r=new FileReader();
   r.onload=e=>{
     pdfBytes=new Uint8Array(e.target.result);
     updRun();
-    setStatus('ready',`${file.name} loaded — ${sel.size>0?'Press RUN to apply highlights':'Select words to activate RUN button'}`);
+    setStatus('ready',`${file.name} loaded. Click RUN to process.`);
   };
-  r.onerror=()=>setStatus('error','Failed to read file.');
+  r.onerror=()=>setStatus('error','Could not read local file contents.');
   r.readAsArrayBuffer(file);
 }
 
-// ── 3. Run highlight ──
+// Helper to perform browser-safe keyword boundaries matching
+function checkKeywordMatch(text, kw) {
+  let re;
+  const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  try {
+    if (kw.toLowerCase() === 'restrict') {
+      re = new RegExp(`(?<![\\w/A-Za-z])${escaped}[A-Za-z]*(?![\\w/A-Za-z])`, 'i');
+    } else {
+      re = new RegExp(`(?<![\\w/A-Za-z])${escaped}(?![\\w/A-Za-z])`, 'i');
+    }
+  } catch (e) {
+    if (kw.toLowerCase() === 'restrict') {
+      re = new RegExp(`\\b${escaped}[A-Za-z]*\\b`, 'i');
+    } else {
+      re = new RegExp(`\\b${escaped}\\b`, 'i');
+    }
+  }
+  return re.test(text);
+}
+
+// Extract Departure and Arrival Airports from Page headers
+async function extractRouteAirports(pdfJsDoc) {
+  const airports = [];
+  try {
+    const scanPagesCount = Math.min(2, pdfJsDoc.numPages);
+    for (let pNum = 1; pNum <= scanPagesCount; pNum++) {
+      const page = await pdfJsDoc.getPage(pNum);
+      const textContent = await page.getTextContent();
+      const fullText = textContent.items.map(it => it.str).join(' ');
+
+      const routeRegex = /\b([A-Z]{3,4})\s*[\/-]\s*([A-Z]{3,4})\b/g;
+      const excludePatterns = [
+        'A/C', 'U/S', 'P/B', 'R/T', 'N/A', 'F/D', 'O/B', 'R/W', 'S/Y', 'O/D', 'V/S', 'F/C', 'I/F', 'P/W', 
+        'W/X', 'H/Y', 'M/A', 'M/D', 'S/C', 'S/A', 'P/D', 'C/A', 'E/D', 'E/A', 'B/D', 'B/A', 'D/O'
+      ];
+
+      let match;
+      while ((match = routeRegex.exec(fullText)) !== null) {
+        const dep = match[1];
+        const arr = match[2];
+        if (!excludePatterns.includes(dep) && !excludePatterns.includes(arr)) {
+          airports.push(dep, arr);
+          break;
+        }
+      }
+      if (airports.length === 2) break;
+    }
+  } catch (err) {
+    console.warn("Airport extraction failed: ", err);
+  }
+  return airports;
+}
+
+// ── Highlighting Engine core computation (100% local) ──
 async function runHL(){
   if(!canRun())return;
-  if(!libsReady){setStatus('error','Libraries not ready. Please wait and try again.');return;}
+  if(!libsReady){setStatus('error','Required engines are not initialized.');return;}
 
   const runBtn=document.getElementById('runBtn');
   runBtn.className='action-btn run-btn';
-  runBtn.innerHTML='Processing...';
-  setStatus('processing','Applying highlights...');
-  done=false;outBytes=null;updDl();
+  runBtn.innerHTML='Processing locally...';
+  setStatus('processing','Analyzing flight plan structure...');
+  done=false;outBytes=null;
+  detectedAirports = [];
+  document.getElementById('routeBadgeContainer').innerHTML = '';
 
   await new Promise(r=>setTimeout(r,50));
 
@@ -326,96 +703,33 @@ async function runHL(){
     const colorMap={};
     keywords.forEach((w,i)=>colorMap[w.toUpperCase()]=HL_COLORS[i%HL_COLORS.length]);
 
-    const pdfJsDoc=await pdfjsLib.getDocument({data:pdfBytes.buffer.slice(0)}).promise;
+    let pdfJsDoc;
+    try {
+      pdfJsDoc = await pdfjsLib.getDocument({data:pdfBytes.buffer.slice(0)}).promise;
+    } catch(err) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+      pdfJsDoc = await pdfjsLib.getDocument({data:pdfBytes.buffer.slice(0)}).promise;
+    }
+    
     const numPages=pdfJsDoc.numPages;
-
     const pdfLibDoc=await PDFLib.PDFDocument.load(pdfBytes,{ignoreEncryption:true});
     const libPages=pdfLibDoc.getPages();
 
-    let totalHits=0;
-
-    for(let pi=0;pi<numPages;pi++){
-      const jsPage=await pdfJsDoc.getPage(pi+1);
-      const vp=jsPage.getViewport({scale:1.0});
-      const libPage=libPages[pi];
-      const {width:lw,height:lh}=libPage.getSize();
-      const sx=lw/vp.width;
-      const sy=lh/vp.height;
-      const content=await jsPage.getTextContent();
-
-      for(const item of content.items){
-        if(!item.str||!item.str.trim())continue;
-        const s=item.str;
-        const tx=item.transform;
-        const itemX=tx[4],itemY=tx[5];
-        const itemW=item.width||0;
-        const itemH=Math.abs(tx[3])||10;
-        const charW=itemW/Math.max(s.length,1);
-
-        for(const kw of keywords){
-          const re=new RegExp(`(?<![\\w/A-Za-z])${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}(?![\\w/A-Za-z])`,'gi');
-          let m;
-          while((m=re.exec(s))!==null){
-            const rx=(itemX+m.index*charW)*sx;
-            const ry=itemY*sy;
-            const rw=kw.length*charW*sx;
-            const rh=itemH*sy;
-            const[r,g,b]=colorMap[kw.toUpperCase()];
-            libPage.drawRectangle({x:rx,y:ry,width:Math.max(rw,4),height:Math.max(rh,8),color:PDFLib.rgb(r,g,b),opacity:0.4});
-            totalHits++;
-          }
-        }
-      }
+    // 1. 공항 코드 자동 감지 세션 가동
+    detectedAirports = await extractRouteAirports(pdfJsDoc);
+    if (detectedAirports.length === 2) {
+      const routeText = `${detectedAirports[0]} ➔ ${detectedAirports[1]}`;
+      document.getElementById('routeBadgeContainer').innerHTML = `
+        <span class="route-badge" title="Auto-detected Route">✈️ Route: ${routeText}</span>
+      `;
     }
 
-    // ── Sentence highlight for CLSD / CLOSED ──
-    const SENTENCE_KW = ['CLSD', 'CLOSED','restrict'];
-    for(let pi = 0; pi < numPages; pi++){
-      const jsPage = await pdfJsDoc.getPage(pi + 1);
-      const vp = jsPage.getViewport({scale: 1.0});
-      const libPage = libPages[pi];
-      const {width: lw, height: lh} = libPage.getSize();
-      const sx = lw / vp.width;
-      const sy = lh / vp.height;
-      const content = await jsPage.getTextContent();
-
-      // Group items into lines by similar Y coordinate
-      const lineMap = {};
-      for(const item of content.items){
-        if(!item.str) continue;
-        const y = Math.round(item.transform[5]);
-        if(!lineMap[y]) lineMap[y] = [];
-        lineMap[y].push(item);
-      }
-
-      for(const yKey of Object.keys(lineMap)){
-        const lineItems = lineMap[yKey].sort((a,b) => a.transform[4] - b.transform[4]);
-        const lineText = lineItems.map(it => it.str).join(' ');
-        const hasKw = SENTENCE_KW.some(kw => new RegExp(`(?<![\\w/A-Za-z])${kw}(?![\\w/A-Za-z])`,'i').test(lineText));
-        if(!hasKw) continue;
-
-        // Draw highlight over the entire line
-        const minX = Math.min(...lineItems.map(it => it.transform[4]));
-        const maxX = Math.max(...lineItems.map(it => it.transform[4] + (it.width || 0)));
-        const itemY = lineItems[0].transform[5];
-        const itemH = Math.abs(lineItems[0].transform[3]) || 10;
-
-        libPage.drawRectangle({
-          x: minX * sx,
-          y: itemY * sy,
-          width: (maxX - minX) * sx,
-          height: Math.max(itemH * sy, 8),
-          color: PDFLib.rgb(0.36, 0.78, 1.0),
-          opacity: 0.4,
-        });
-      }
-    }
-
-    // ── Bookmarks ──
+    // 2. 북마크 인덱스 매칭 및 구역 매핑 사전 분석 (Pre-scan)
     const BOOKMARK_PATTERNS=[
       {label:'CFP PLAN',pattern:/CFP\s+PLAN/i},
       {label:'COPY OF ATS',pattern:/COPY\s+OF\s+ATS/i},
       {label:'DISPATCH RELEASE INFORMATION',pattern:/DISPATCH\s+RELEASE\s+INFORMATION/i},
+      {label:'EQUAL TIME POINT DATA',pattern:/EQUAL\s+TIME\s+POINT\s+DATA/i},
       {label:'WEATHER BRIEFING',pattern:/WEATHER\s+BRIEFING/i},
       {label:'PACKAGE 1',pattern:/PACKAGE\s+1/i},
       {label:'PACKAGE 2',pattern:/PACKAGE\s+2(?:\s+KE)?/i},
@@ -433,6 +747,192 @@ async function runHL(){
         else if(bm.label!=='PACKAGE 1'&&bm.pattern.test(pageText))bmPages[bm.label]=pi;
       }
     }
+
+    const pkg3StartIdx = bmPages['PACKAGE 3'] !== undefined ? bmPages['PACKAGE 3'] : -1;
+
+    setStatus('processing','Extracting text Coordinates locally...');
+    let totalHits=0;
+
+    // 3. 페이지별 통합 하이라이트 & 회색 영역 분석 드로잉 패스
+    for(let pi=0;pi<numPages;pi++){
+      const jsPage=await pdfJsDoc.getPage(pi+1);
+      const vp=jsPage.getViewport({scale:1.0});
+      const libPage=libPages[pi];
+      const {width:lw,height:lh}=libPage.getSize();
+      const sx=lw/vp.width;
+      const sy=lh/vp.height;
+      const content=await jsPage.getTextContent();
+
+      const isPackage3Page = (pkg3StartIdx !== -1 && pi >= pkg3StartIdx);
+
+      // 줄바꿈 보존을 위한 미세 Y 좌표 바인딩 정렬 및 군집화
+      const groupedLines = [];
+      const sortedItems = content.items
+        .filter(it => it.str && it.str.trim())
+        .sort((a, b) => b.transform[5] - a.transform[5]);
+
+      for (const item of sortedItems) {
+        const itemY = item.transform[5];
+        let joined = false;
+        for (const line of groupedLines) {
+          if (Math.abs(line.y - itemY) < 4.0) {
+            line.items.push(item);
+            joined = true;
+            break;
+          }
+        }
+        if (!joined) {
+          groupedLines.push({ y: itemY, items: [item] });
+        }
+      }
+
+      // [3번 요구사항] EQUAL TIME POINT DATA 구역 검출 및 흐린 회색 박스 음영 드로잉 바인딩
+      let etpY = null;
+      let herebyY = null;
+      let etpLineHeight = 10;
+      let herebyLineHeight = 10;
+
+      for (const line of groupedLines) {
+        const lineText = line.items.sort((a,b) => a.transform[4] - b.transform[4]).map(it => it.str).join(' ');
+        
+        if (/EQUAL\s+TIME\s+POINT\s+DATA/i.test(lineText)) {
+          etpY = line.y;
+          etpLineHeight = Math.abs(line.items[0].transform[3]) || 10;
+        }
+        if (/i\s+he?ar?by/i.test(lineText)) {
+          herebyY = line.y;
+          herebyLineHeight = Math.abs(line.items[0].transform[3]) || 10;
+        }
+      }
+
+      // 'EQUAL TIME POINT DATA'를 찾았다면 그 영역 전체에 흐린 그레이 백그라운드 박스를 가장 먼저 그립니다.
+      if (etpY !== null) {
+        const boxX = 20;
+        const boxWidth = lw - 40;
+        
+        // 만약 한 페이지 안에 'I HEREBY' 서명란이 없는 경우, 하단 마진 40pt 위까지를 박스 영역으로 대체합니다.
+        const targetHerebyY = herebyY !== null ? herebyY : (40 / sy);
+        const targetHerebyHeight = herebyY !== null ? herebyLineHeight : 10;
+
+        const pdfEtpY = (etpY + etpLineHeight) * sy;
+        const pdfHerebyY = (targetHerebyY + targetHerebyHeight + 6) * sy; // 'I HEREBY' 텍스트 윗줄 바로 위까지만 음영
+
+        if (pdfEtpY > pdfHerebyY) {
+          const boxHeight = pdfEtpY - pdfHerebyY;
+          libPage.drawRectangle({
+            x: boxX,
+            y: pdfHerebyY,
+            width: boxWidth,
+            height: boxHeight,
+            color: PDFLib.rgb(0.92, 0.93, 0.95), // 흐린 회색
+            opacity: 0.38
+          });
+        }
+      }
+
+      // [1번 요구사항] 줄 전체 하이라이트 유무를 판별한 뒤 하이라이트 가공 적용
+      const SENTENCE_KW = ['CLSD', 'CLOSED', 'RESTRICT'];
+
+      for (const line of groupedLines) {
+        const lineItems = line.items.sort((a,b) => a.transform[4] - b.transform[4]);
+        const lineText = lineItems.map(it => it.str).join(' ');
+
+        // 문장/줄 전체 하이라이트 유도 키워드가 줄 내에 존재하는지 체크
+        const hasSentenceKw = SENTENCE_KW.some(kw => checkKeywordMatch(lineText, kw));
+
+        if (hasSentenceKw) {
+          // [우선순위 1] 줄 전체 하이라이트 수행 (시인성이 우수한 Royal Blue 컬러 사용)
+          const minX = Math.min(...lineItems.map(it => it.transform[4]));
+          const maxX = Math.max(...lineItems.map(it => it.transform[4] + (it.width || 0)));
+          const itemY = line.y;
+          const itemH = Math.abs(lineItems[0].transform[3]) || 10;
+
+          libPage.drawRectangle({
+            x: minX * sx,
+            y: itemY * sy,
+            width: (maxX - minX) * sx,
+            height: Math.max(itemH * sy, 8),
+            color: PDFLib.rgb(0.15, 0.52, 0.90), // 로열 블루 하이라이트
+            opacity: 0.45,
+          });
+          totalHits++;
+
+          // [핵심 조건] 해당 줄에 포함된 개별 키워드들은 추가 하이라이트를 하지 않도록 프로세스 즉시 스킵 (중복 방지)
+          continue;
+        }
+
+        // [우선순위 2] 줄 전체 하이라이트가 안 된 평범한 행인 경우에만 개별 단어 하이라이트 수행
+        for (const item of lineItems) {
+          const s = item.str;
+          const tx = item.transform;
+          const itemX = tx[4], itemY = tx[5];
+          const itemW = item.width||0;
+          const itemH = Math.abs(tx[3])||10;
+          const charW = itemW / Math.max(s.length, 1);
+
+          // A. 일반 프리셋/커스텀 단어 하이라이트
+          for(const kw of keywords){
+            let re;
+            try {
+              re = new RegExp(`(?<![\\w/A-Za-z])${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}(?![\\w/A-Za-z])`,'gi');
+            } catch(e) {
+              re = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`,'gi');
+            }
+            let m;
+            while((m=re.exec(s))!==null){
+              const rx=(itemX+m.index*charW)*sx;
+              const ry=itemY*sy;
+              const rw=kw.length*charW*sx;
+              const rh=itemH*sy;
+              const[r,g,b]=colorMap[kw.toUpperCase()];
+              libPage.drawRectangle({x:rx,y:ry,width:Math.max(rw,4),height:Math.max(rh,8),color:PDFLib.rgb(r,g,b),opacity:0.4});
+              totalHits++;
+            }
+          }
+
+          // B. 출발/도착 공항 정보 하이라이트 (PACKAGE 3 구역의 페이지에서만 기존 하늘색 하이라이트 적용)
+          if (isPackage3Page && detectedAirports.length === 2) {
+            const dep = detectedAirports[0];
+            const arr = detectedAirports[1];
+
+            const airportSearches = [
+              { text: `${dep}/${arr}`, len: `${dep}/${arr}`.length },
+              { text: `${dep}-${arr}`, len: `${dep}-${arr}`.length },
+              { text: dep, len: dep.length },
+              { text: arr, len: arr.length }
+            ];
+
+            for (const itemSearch of airportSearches) {
+              let re;
+              try {
+                re = new RegExp(`(?<![\\w/A-Za-z])${itemSearch.text.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}(?![\\w/A-Za-z])`,'gi');
+              } catch(e) {
+                re = new RegExp(`\\b${itemSearch.text.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`,'gi');
+              }
+              let m;
+              while((m=re.exec(s))!==null){
+                const rx=(itemX+m.index*charW)*sx;
+                const ry=itemY*sy;
+                const rw=itemSearch.len*charW*sx;
+                const rh=itemH*sy;
+                
+                libPage.drawRectangle({
+                  x: rx,
+                  y: ry - 1,
+                  width: Math.max(rw, 4),
+                  height: Math.max(rh + 2, 10),
+                  color: PDFLib.rgb(0.36, 0.78, 1.0),
+                  opacity: 0.4
+                });
+                totalHits++;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 4. 북마크 트리 맵 구성 및 통합 구조 연동
     const ctx=pdfLibDoc.context;
     const outlineItems=[];
     for(const bm of BOOKMARK_PATTERNS){
@@ -455,7 +955,7 @@ async function runHL(){
       pdfLibDoc.catalog.set(PDFLib.PDFName.of('PageMode'),PDFLib.PDFName.of('UseOutlines'));
     }
 
-    // ── CFP PLAN -> COPY OF ATS text copy ──
+    // 5. 비행계획서 루트 로그 정보 복제 (CFP PLAN -> Copy of ATS 추가 드로잉)
     const cfpPageIdx=bmPages['CFP PLAN'],coaPageIdx=bmPages['COPY OF ATS'];
     if(cfpPageIdx!==undefined&&coaPageIdx!==undefined){
       const cfpJsPage=await pdfJsDoc.getPage(cfpPageIdx+1);
@@ -490,11 +990,11 @@ async function runHL(){
         if(cur)lines.push(cur.trim());
         const blockH=lines.length*lineH+padding*2;
         const blockY=lowestY-blockH-10;
-        coaLibPage.drawRectangle({x:20,y:blockY,width:maxWidth+padding*2,height:blockH,color:PDFLib.rgb(0.36,0.78,1.0),opacity:0.35});
-        const font=await pdfLibDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+        coaLibPage.drawRectangle({x:20,y:blockY,width:maxWidth+padding*2,height:blockH,color:PDFLib.rgb(0.9,0.95,1),borderColor:PDFLib.rgb(0.36,0.78,1),borderWidth:1,opacity:0.95});
+        const font=await pdfLibDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
         for(let li=0;li<lines.length;li++){
           const ty=blockY+blockH-padding-(li+1)*lineH+lineH*0.2;
-          coaLibPage.drawText(lines[li],{x:20+padding,y:ty,size:fontSize,font,color:PDFLib.rgb(0,0,0),maxWidth});
+          coaLibPage.drawText(lines[li],{x:20+padding,y:ty,size:fontSize,font,color:PDFLib.rgb(0.05,0.1,0.2),maxWidth});
         }
       }
     }
@@ -502,20 +1002,68 @@ async function runHL(){
     outBytes=await pdfLibDoc.save();
     done=true;
     runBtn.className='action-btn dl-btn active';
-    runBtn.innerHTML='⬇ PDF DOWNLOAD';
+    runBtn.innerHTML='⬇ DOWNLOAD PDF FILE';
     const bmCount=Object.keys(bmPages).length;
-    setStatus('done',`Done — ${numPages} pages, ${totalHits} highlights, ${bmCount} bookmarks inserted`);
+    
+    let routeInfoStr = "";
+    if (detectedAirports.length === 2) {
+      routeInfoStr = ` | Route: ${detectedAirports[0]}➔${detectedAirports[1]}`;
+    }
+    
+    setStatus('done',`Completed! ${numPages} pages, ${totalHits} elements highlighted${routeInfoStr}, ${bmCount} bookmarks set.`);
+    
     document.getElementById('previewCard').style.display='block';
+    document.getElementById('canvasCard').style.display='block';
+    
+    pdfJsDocObj = await pdfjsLib.getDocument({data:outBytes.buffer.slice(0)}).promise;
+    totalPreviewPages = pdfJsDocObj.numPages;
+    currentPreviewPage = 1;
+    renderPreview();
+    
     dlPDF();
 
   }catch(err){
-    setStatus('error','Error: '+err.message);
+    setStatus('error','Local execution fault: '+err.message);
     runBtn.className='action-btn run-btn active';
-    runBtn.innerHTML='▶ RUN';
+    runBtn.innerHTML='▶ RUN HIGHLIGHTER';
   }
 }
 
-// ── 4. Download ──
+// ── Live Interactive Preview Renderer ──
+async function renderPreview() {
+  if (!pdfJsDocObj) return;
+  document.getElementById('pageIndicator').textContent = `Page ${currentPreviewPage} / ${totalPreviewPages}`;
+  document.getElementById('prevPage').disabled = (currentPreviewPage <= 1);
+  document.getElementById('nextPage').disabled = (currentPreviewPage >= totalPreviewPages);
+
+  try {
+    const page = await pdfJsDocObj.getPage(currentPreviewPage);
+    const canvas = document.getElementById('previewCanvas');
+    const context = canvas.getContext('2d');
+    
+    const viewport = page.getViewport({ scale: 1.2 });
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    const renderContext = {
+      canvasContext: context,
+      viewport: viewport
+    };
+    await page.render(renderContext).promise;
+  } catch (err) {
+    console.error("Preview render failed: ", err);
+  }
+}
+
+function changePage(dir) {
+  const target = currentPreviewPage + dir;
+  if (target >= 1 && target <= totalPreviewPages) {
+    currentPreviewPage = target;
+    renderPreview();
+  }
+}
+
+// ── Standard Download Trigger ──
 function dlPDF(){
   if(!done||!outBytes)return;
   try{
@@ -523,13 +1071,13 @@ function dlPDF(){
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
     a.href=url;
-    a.download=fname+'_highlighted.pdf';
+    a.download=fname+'_optimized.pdf';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(()=>URL.revokeObjectURL(url),30000);
   }catch(e){
-    setStatus('error','Download error: '+e.message);
+    setStatus('error','Local writing error: '+e.message);
   }
 }
 </script>

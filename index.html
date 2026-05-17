@@ -777,16 +777,16 @@ async function runHL(){
     // 2. 날짜 및 편명 메타데이터 자동 추출 실행
     await extractMetadata(pdfJsDoc);
 
-    // 3. [복원 완료] 북마크 인덱스 매칭 및 구역 매핑 사전 분석 (NOTAM Package 1, 2, 3 포함)
+    // 3. [복원 완료] 북마크 인덱스 매칭 및 구역 매핑 사전 분석 (NOTAM 1, 2, 3으로 레이블 업데이트 완료)
     const BOOKMARK_PATTERNS=[
       {label:'CFP PLAN',pattern:/CFP\s+PLAN/i},
       {label:'COPY OF ATS',pattern:/COPY\s+OF\s+ATS/i},
       {label:'DISPATCH RELEASE INFORMATION',pattern:/DISPATCH\s+RELEASE\s+INFORMATION|DISPATCH\s+RELEASE\s+INFO/i},
       {label:'EQUAL TIME POINT DATA',pattern:/EQUAL\s+TIME\s+POINT\s+DATA/i},
       {label:'WEATHER BRIEFING',pattern:/WEATHER\s+BRIEFING/i},
-      {label:'NOTAM PACKAGE 1',pattern:/(NOTAM\s+)?PACKAGE\s+1/i},
-      {label:'NOTAM PACKAGE 2',pattern:/(NOTAM\s+)?PACKAGE\s+2(?:\s+KE)?/i},
-      {label:'NOTAM PACKAGE 3',pattern:/(NOTAM\s+)?PACKAGE\s+3/i},
+      {label:'NOTAM 1',pattern:/(NOTAM\s+)?PACKAGE\s+1/i},
+      {label:'NOTAM 2',pattern:/(NOTAM\s+)?PACKAGE\s+2(?:\s+KE)?/i},
+      {label:'NOTAM 3',pattern:/(NOTAM\s+)?PACKAGE\s+3/i},
     ];
     
     const bmPages={};let pkg1Page=-1;
@@ -796,16 +796,16 @@ async function runHL(){
       const pageText=tc.items.map(it=>it.str).join(' ');
       for(const bm of BOOKMARK_PATTERNS){
         if(bmPages[bm.label]!==undefined)continue;
-        if(bm.label==='NOTAM PACKAGE 1'&&bm.pattern.test(pageText)){bmPages[bm.label]=pi;pkg1Page=pi;}
-        else if(bm.label==='NOTAM PACKAGE 2'){if(pkg1Page>=0&&pi>pkg1Page&&bm.pattern.test(pageText))bmPages[bm.label]=pi;}
-        else if(bm.label!=='NOTAM PACKAGE 1'&&bm.pattern.test(pageText))bmPages[bm.label]=pi;
+        if(bm.label==='NOTAM 1'&&bm.pattern.test(pageText)){bmPages[bm.label]=pi;pkg1Page=pi;}
+        else if(bm.label==='NOTAM 2'){if(pkg1Page>=0&&pi>pkg1Page&&bm.pattern.test(pageText))bmPages[bm.label]=pi;}
+        else if(bm.label!=='NOTAM 1'&&bm.pattern.test(pageText))bmPages[bm.label]=pi;
       }
     }
 
-    const pkg3StartIdx = bmPages['NOTAM PACKAGE 3'] !== undefined ? bmPages['NOTAM PACKAGE 3'] : -1;
+    const pkg3StartIdx = bmPages['NOTAM 3'] !== undefined ? bmPages['NOTAM 3'] : -1;
     const dispatchReleaseIdx = bmPages['DISPATCH RELEASE INFORMATION'] !== undefined ? bmPages['DISPATCH RELEASE INFORMATION'] : -1;
     const weatherBriefingIdx = bmPages['WEATHER BRIEFING'] !== undefined ? bmPages['WEATHER BRIEFING'] : -1;
-    const pkg1PageIdx = bmPages['NOTAM PACKAGE 1'] !== undefined ? bmPages['NOTAM PACKAGE 1'] : -1;
+    const pkg1PageIdx = bmPages['NOTAM 1'] !== undefined ? bmPages['NOTAM 1'] : -1;
 
     // Dispatch Release section spans from dispatchReleaseIdx to whichever section comes next
     let dispatchEndIdx = numPages;

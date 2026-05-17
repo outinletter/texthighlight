@@ -811,6 +811,9 @@ async function runHL(){
     const pdfLibDoc=await PDFLib.PDFDocument.load(pdfBytes,{ignoreEncryption:true});
     const libPages=pdfLibDoc.getPages();
 
+    // Embed standard fonts for search layer repair
+    const stdFont = await pdfLibDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+
     // 1. 디코더 병합 파싱으로 정확한 노선 공항코드 추출
     detectedAirports = await extractReleaseAirportsByRule2(pdfJsDoc);
 
@@ -893,6 +896,31 @@ async function runHL(){
 
       const isPackage3Page = (pkg3StartIdx !== -1 && pi >= pkg3StartIdx);
       const isDispatchPage = (dispatchReleaseIdx !== -1 && pi >= dispatchReleaseIdx && pi < dispatchEndIdx);
+
+      // Search layer repair: Re-inject original English text invisibly over the corrupted layers
+      if (pageOffset !== 0) {
+        for (const item of content.items) {
+          const originalStr = decodeStr(item.str, pageOffset);
+          if (originalStr && originalStr.trim()) {
+            const tx = item.transform;
+            const rx = tx[4] * sx;
+            const ry = tx[5] * sy;
+            const itemH = Math.abs(tx[3]) || 10;
+            try {
+              libPage.drawText(originalStr, {
+                x: rx,
+                y: ry,
+                size: itemH * sy,
+                font: stdFont,
+                color: PDFLib.rgb(0, 0, 0),
+                opacity: 0.0 // invisible searchable layer
+              });
+            } catch (err) {
+              console.warn("Search layer injection skipped for node", err);
+            }
+          }
+        }
+      }
 
       const groupedLines = [];
       const sortedItems = content.items
@@ -1116,7 +1144,7 @@ async function runHL(){
       pdfLibDoc.catalog.set(PDFLib.PDFName.of('PageMode'),PDFLib.PDFName.of('UseOutlines'));
     }
 
-    // ── CFP PLAN 에서 ATS Route 정보를 완벽히 파악하여 COPY OF ATS (ATS Plan) 페이지 본문 최하단에 기입 ──
+    // ── CFP PLAN 에서 ATS Route 정보를 완벽히 파악하여 COPY OF ATS 페이지 내 지정 행 하단에 배치 ──
     const cfpPageIdx=bmPages['CFP PLAN'],coaPageIdx=bmPages['COPY OF ATS'];
     if(cfpPageIdx!==undefined&&coaPageIdx!==undefined){
       const cfpJsPage=await pdfJsDoc.getPage(cfpPageIdx+1);
@@ -1133,7 +1161,7 @@ async function runHL(){
       });
       const cfpFullText=cfpItems.map(it=>decodeStr(it.str, cfpOffset)).join(' ');
 
-      // 출발공항과 도착공항의 2레벨 식별 코드를 추적하여 경로의 범위를 지능적으로 바인딩
+      // 출발공항과 도착공항의 식별 코드를 추적하여 경로의 범위를 바인딩
       let extractedRoute = "";
       if (detectedAirports.length === 2) {
         const depCode = detectedAirports[0];
@@ -1154,7 +1182,6 @@ async function runHL(){
         if (fbMatch) {
           extractedRoute = fbMatch[1].replace(/\s+/g, ' ').trim();
         } else {
-          // 점(..)으로 연결된 조각구조 중 비행계획서 경로와 가장 부합하는 구문을 백업으로 확보
           const genericRouteRegex = /([A-Z]{4}\s*\.\.[\s\S]*?\.\.\s*[A-Z]{4})/i;
           const genMatch = cfpFullText.match(genericRouteRegex);
           if (genMatch) {
@@ -1171,13 +1198,6 @@ async function runHL(){
         const {width:coaW,height:coaH}=coaLibPage.getSize();
         const coaVp=coaJsPage.getViewport({scale:1.0});
         const coaSy=coaH/coaVp.height;
-
-        // COPY OF ATS 페이지에서 가장 마지막으로 발견된 글자의 최하단 Y 좌표 계산
-        let lowestY=coaH;
-        for(const it of coaContent.items){
-          const iy=it.transform[5]*coaSy;
-          if(iy<lowestY && iy > 20) lowestY=iy;
-        }
 
         const fontSize=8,lineH=fontSize*1.4,padding=8;
         const maxWidth=coaW-40;
@@ -1198,8 +1218,32 @@ async function runHL(){
         if(cur)lines.push(cur.trim());
 
         const blockH=lines.length*lineH+padding*2;
-        // COPY OF ATS 텍스트 겹침을 미연에 방지하기 위해 최소 여유 하단 간격 배치
-        const blockY=Math.max(lowestY - blockH - 18, 25);
+
+        // [위치 최적화] 'COPY OF ATS FPL' 문자열이 포함된 라인을 감지하여 그 바로 하단 여백에 기입하도록 튜닝
+        let targetLineY = -1;
+        let coaOffset = detectPageOffset(coaContent.items.map(it => it.str).join(' '));
+        
+        for (const it of coaContent.items) {
+          const decodedIt = decodeStr(it.str, coaOffset);
+          if (decodedIt.toUpperCase().includes("COPY OF ATS FPL") || decodedIt.toUpperCase().includes("COPY OF ATS")) {
+            targetLineY = it.transform[5] * coaSy;
+            break;
+          }
+        }
+
+        let blockY;
+        if (targetLineY !== -1) {
+          // 'COPY OF ATS FPL' 라인 바로 하단에 배치
+          blockY = targetLineY - blockH - 12;
+        } else {
+          // Fallback: 가장 아래에 배치
+          let lowestY=coaH;
+          for(const it of coaContent.items){
+            const iy=it.transform[5]*coaSy;
+            if(iy<lowestY && iy > 20) lowestY=iy;
+          }
+          blockY = Math.max(lowestY - blockH - 18, 25);
+        }
 
         // 하이라이트 배경 프레임 박스 생성
         coaLibPage.drawRectangle({

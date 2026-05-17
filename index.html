@@ -17,11 +17,11 @@ body{
 .header{
   background:linear-gradient(135deg,#111827,#0f172a);
   border-bottom:1px solid #1e293b;
-  padding:24px 16px;
+  padding:20px 16px;
   text-align:center;
 }
 .header h1{
-  font-size:28px;
+  font-size:24px;
   font-weight:800;
   letter-spacing:1px;
   color:#fff;
@@ -30,43 +30,36 @@ body{
   color:#3b82f6;
 }
 .header p{
-  font-size:12px;
+  font-size:11px;
   color:#94a3b8;
-  margin-top:6px;
+  margin-top:4px;
 }
 .body{
   flex:1;
-  padding:24px 16px 40px;
+  padding:16px 12px 32px;
 }
 .app{
-  max-width:960px;
+  max-width:640px; /* Adjusted to optimal phone & tablet viewport width */
   margin:0 auto;
-  display:grid;
-  grid-template-columns:1fr;
-  gap:20px;
-}
-@media(min-width:768px){
-  .app{
-    grid-template-columns: 1fr 1fr;
-  }
-  .full-width{
-    grid-column: span 2;
-  }
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  width:100%;
 }
 .card{
   background:#111827;
-  border-radius:14px;
+  border-radius:12px;
   border:1px solid #1e293b;
-  padding:20px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding:16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 .card-title{
   font-size:11px;
   font-weight:700;
   color:#3b82f6;
-  letter-spacing:1.5px;
+  letter-spacing:1px;
   text-transform:uppercase;
-  margin-bottom:14px;
+  margin-bottom:12px;
   display:flex;
   align-items:center;
   gap:6px;
@@ -74,12 +67,12 @@ body{
 .upload-area{
   border:2px dashed #334155;
   border-radius:10px;
-  padding:20px;
+  padding:16px;
   cursor:pointer;
   transition:.2s;
   display:flex;
   align-items:center;
-  gap:14px;
+  gap:12px;
   background:#0f172a;
 }
 .upload-area:hover{
@@ -92,18 +85,18 @@ body{
   background:rgba(16,185,129,.05);
 }
 .upload-area input{display:none}
-.upload-icon{font-size:24px;flex-shrink:0}
-.upload-text{flex:1}
-.upload-label{font-size:13px;color:#cbd5e1;font-weight:600}
-.upload-sub{font-size:11px;color:#64748b;margin-top:2px}
-.file-name{font-size:12px;font-weight:600;color:#10b981;margin-top:4px}
+.upload-icon{font-size:22px;flex-shrink:0}
+.upload-text{flex:1; min-width:0;}
+.upload-label{font-size:12.5px;color:#cbd5e1;font-weight:600;word-break:break-all}
+.upload-sub{font-size:10.5px;color:#64748b;margin-top:2px}
+.file-name{font-size:11.5px;font-weight:600;color:#10b981;margin-top:4px;word-break:break-all}
 .upload-btn-label{
-  padding:8px 14px;
+  padding:6px 12px;
   border:1px solid #3b82f6;
-  border-radius:8px;
+  border-radius:6px;
   background:rgba(59,130,246,.1);
   color:#3b82f6;
-  font-size:12px;
+  font-size:11px;
   font-weight:600;
   white-space:nowrap;
   cursor:pointer;
@@ -119,11 +112,11 @@ body{
   flex-wrap:wrap;
 }
 .hl-label{
-  font-size:14px;
+  font-size:13px;
   font-weight:600;
   color:#f1f5f9;
   flex:1;
-  min-width:140px;
+  min-width:120px;
 }
 .toggle{position:relative;width:44px;height:24px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0}
@@ -151,15 +144,15 @@ body{
 
 .dropdown-wrap{position:relative}
 .dropdown-btn{
-  padding:8px 14px;
+  padding:8px 12px;
   border:1px solid #334155;
   border-radius:8px;
   background:#0f172a;
-  font-size:13px;
+  font-size:12px;
   cursor:pointer;
   display:flex;
   align-items:center;
-  gap:8px;
+  gap:6px;
   color:#cbd5e1;
   transition:.15s;
 }
@@ -168,32 +161,32 @@ body{
   background:#3b82f6;
   color:#fff;
   border-radius:10px;
-  font-size:11px;
-  padding:1px 8px;
+  font-size:10px;
+  padding:1px 6px;
   font-weight:700;
 }
 .badge-count.all{background:#10b981}
-.arrow{font-size:9px;transition:.2s}
+.arrow{font-size:8px;transition:.2s}
 .dropdown-btn.open .arrow{transform:rotate(180deg)}
 .dropdown-menu{
   position:absolute;
   background:#1e293b;
   border:1px solid #334155;
   border-radius:12px;
-  padding:10px 0;
-  width:260px;
+  padding:8px 0;
+  width:240px;
   z-index:1000;
   box-shadow:0 10px 15px -3px rgba(0,0,0,.5);
-  max-height:250px;
+  max-height:220px;
   overflow-y:auto;
   text-align:left;
   right:0;
   top:calc(100% + 6px);
 }
-.menu-section{padding:6px 14px;font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase}
-.menu-item{display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;font-size:13px;color:#cbd5e1;transition:.1s}
+.menu-section{padding:4px 12px;font-size:9px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase}
+.menu-item{display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;font-size:12.5px;color:#cbd5e1;transition:.1s}
 .menu-item:hover{background:rgba(59,130,246,.1);color:#fff}
-.menu-item input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:#3b82f6;flex-shrink:0}
+.menu-item input[type=checkbox]{width:14px;height:14px;cursor:pointer;accent-color:#3b82f6;flex-shrink:0}
 
 .custom-add-wrap{padding:0}
 .custom-add-row{display:flex;gap:6px}
@@ -202,8 +195,8 @@ body{
   background:#0f172a;
   border:1px solid #334155;
   border-radius:8px;
-  padding:8px 12px;
-  font-size:13px;
+  padding:8px 10px;
+  font-size:12.5px;
   color:#fff;
   outline:none;
   transition:.15s;
@@ -211,27 +204,27 @@ body{
 .custom-add-row input:focus{border-color:#3b82f6}
 .custom-add-row input::placeholder{color:#475569}
 .custom-add-row button{
-  padding:8px 16px;
+  padding:8px 14px;
   border:none;
   border-radius:8px;
   background:#3b82f6;
   color:#fff;
-  font-size:13px;
+  font-size:12.5px;
   font-weight:600;
   cursor:pointer;
 }
 .custom-add-row button:hover{background:#2563eb}
 .tag-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:600}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;font-size:11.5px;font-weight:600}
 .tag-remove{cursor:pointer;opacity:.6;font-size:11px}
 .tag-remove:hover{opacity:1}
 
 .action-btn{
   width:100%;
-  padding:14px;
+  padding:12px;
   border:none;
-  border-radius:10px;
-  font-size:14px;
+  border-radius:8px;
+  font-size:13px;
   font-weight:700;
   letter-spacing:.5px;
   transition:.25s;
@@ -251,16 +244,16 @@ body{
 .status-bar{
   display:flex;
   align-items:center;
-  gap:10px;
-  padding:12px 14px;
-  border-radius:10px;
-  font-size:12.5px;
+  gap:8px;
+  padding:10px 12px;
+  border-radius:8px;
+  font-size:11.5px;
   font-weight:500;
-  margin-top:12px;
+  margin-top:10px;
   background:#0f172a;
   border:1px solid #1e293b;
   color:#64748b;
-  min-height:44px;
+  min-height:40px;
 }
 .status-bar.ready{color:#3b82f6;border-color:#334155}
 .status-bar.processing{color:#f59e0b;border-color:#451a03}
@@ -270,56 +263,15 @@ body{
 .status-bar.processing .status-dot{animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* Interactive Preview Styles */
-.preview-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:12px;
-}
-.preview-nav{
-  display:flex;
-  gap:6px;
-  align-items:center;
-}
-.nav-btn{
-  background:#334155;
-  color:#cbd5e1;
-  border:none;
-  border-radius:6px;
-  padding:4px 10px;
-  font-size:11px;
-  cursor:pointer;
-}
-.nav-btn:hover{background:#475569}
-.nav-btn:disabled{opacity:0.3;cursor:not-allowed}
-.preview-container{
-  background:#0f172a;
-  border:1px solid #334155;
-  border-radius:10px;
-  padding:12px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:300px;
-  max-height:550px;
-  overflow:auto;
-}
-#previewCanvas{
-  max-width:100%;
-  height:auto;
-  box-shadow:0 10px 15px -3px rgba(0,0,0,0.5);
-  background:white;
-}
 .offline-instruction {
   background: rgba(59, 130, 246, 0.1);
   border: 1px solid rgba(59, 130, 246, 0.2);
   border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 12px;
-  font-size: 11px;
+  padding: 10px;
+  margin-bottom: 8px;
+  font-size: 10.5px;
   color: #93c5fd;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 .offline-instruction b {
   color: #fff;
@@ -327,14 +279,14 @@ body{
 .route-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   background: #3b82f6;
   color: #fff;
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10.5px;
   font-weight: 700;
-  margin-left: 8px;
+  margin-left: 6px;
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 </style>
@@ -350,16 +302,13 @@ body{
   <div class="app">
     
     <!-- Offline Guide Panel -->
-    <div class="card full-width">
+    <div class="card">
       <div class="card-title">🔌 오프라인 실행 가이드 (EFB 최적화)</div>
       <div class="offline-instruction">
-        본 앱은 <b>100% 브라우저 메모리</b> 상에서 로컬 연산되므로 업로드한 비행 서류가 서버에 저장되지 않아 보안상 안전합니다.<br>
-        <b>완전한 오프라인 상태(비행기 안)에서 정상 가동하려면:</b><br>
-        1. 아래 파일들을 미리 인터넷 다운로드하여 이 HTML 파일과 <b>동일한 폴더</b>에 저장해 두세요.<br>
-        • <b>pdf.min.js</b> (<span style="user-select:all; background:#0f172a; padding:1px 4px; border-radius:3px;">https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js</span>)<br>
-        • <b>pdf.worker.min.js</b> (<span style="user-select:all; background:#0f172a; padding:1px 4px; border-radius:3px;">https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js</span>)<br>
-        • <b>pdf-lib.min.js</b> (<span style="user-select:all; background:#0f172a; padding:1px 4px; border-radius:3px;">https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js</span>)<br>
-        2. 오프라인 시 시스템이 감지하여 로컬 스크립트로 즉시 로드합니다.
+        본 앱은 <b>100% 브라우저 메모리</b> 상에서 로컬 연산되므로 업로드한 비행 서류가 외부 서버에 전송되거나 저장되지 않아 보안상 매우 안전합니다.<br>
+        <b>인터넷이 차단된 기내(비행기 안)에서 정상 구동하려면:</b><br>
+        • 다음 필수 엔진 파일들을 미리 다운로드하여 이 HTML 파일과 <b>동일한 폴더</b>에 저장해 두시면 완벽하게 독립 동작합니다.<br>
+        - <b>pdf.min.js</b> / <b>pdf.worker.min.js</b> / <b>pdf-lib.min.js</b>
       </div>
     </div>
 
@@ -421,38 +370,22 @@ body{
     <!-- PDF Save Panel -->
     <div class="card" id="previewCard" style="display:none">
       <div class="card-title">💾 5. SAVE MODIFIED PDF</div>
-      <p style="font-size:12px;color:#94a3b8;margin-bottom:14px">
-        자동 다운로드가 막힌 경우 아래 버튼을 직접 탭하여 저장/공유하십시오.
+      <p style="font-size:11px;color:#94a3b8;margin-bottom:12px">
+        자동 다운로드가 지연되거나 차단된 경우 아래 버튼을 직접 탭하여 파일을 저장 또는 공유하십시오.
       </p>
       <button class="action-btn dl-btn active" onclick="dlPDF()">
         💾 Save / Share PDF
       </button>
     </div>
 
-    <!-- Interactive Canvas Preview Pane -->
-    <div class="card" id="canvasCard" style="display:none">
-      <div class="preview-header">
-        <div class="card-title" style="margin-bottom:0">👁️ LIVE PREVIEW</div>
-        <div class="preview-nav">
-          <button class="nav-btn" id="prevPage" onclick="changePage(-1)">◀ Prev</button>
-          <span id="pageIndicator" style="font-size:11px;color:#cbd5e1">Page 1/1</span>
-          <button class="nav-btn" id="nextPage" onclick="changePage(1)">Next ▶</button>
-        </div>
-      </div>
-      <div class="preview-container">
-        <canvas id="previewCanvas"></canvas>
-      </div>
-    </div>
-
   </div>
 </div>
 
-<footer style="text-align:center;padding:24px 0;color:#475569;font-size:12px;border-top:1px solid #1e293b;background:#070b13">
+<footer style="text-align:center;padding:20px 0;color:#475569;font-size:11px;border-top:1px solid #1e293b;background:#070b13">
   © 2026 EFB Systems &nbsp;|&nbsp; <i><a href="mailto:bongsjeon@koreanair.com" style="color:#3b82f6;text-decoration:none">bongsjeon@koreanair.com</a></i>
 </footer>
 
 <script>
-// Suppress console output for memory optimization
 (()=> {const n=()=>{};console.log=n;console.warn=n;console.info=n;console.debug=n;})();
 
 let resolvedWorkerUrl = '';
@@ -476,7 +409,7 @@ async function initLibraries() {
     try {
       await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js');
     } catch (err) {
-      setStatus('error', 'PDF.js 메인 엔진 로드 실패. 인터넷 연결 혹은 오프라인 가이드 파일 상태를 확인해 주세요.');
+      setStatus('error', 'PDF.js 메인 엔진 로드 실패. 오프라인 가이드 혹은 연결 상태를 확인하십시오.');
       return;
     }
   }
@@ -489,7 +422,7 @@ async function initLibraries() {
       await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js');
       resolvedWorkerUrl = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
     } catch (err) {
-      console.warn('Worker script could not be pre-loaded.');
+      console.warn('Worker script pre-load skipped.');
     }
   }
 
@@ -499,7 +432,7 @@ async function initLibraries() {
     try {
       await loadScript('https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js');
     } catch (err) {
-      setStatus('error', 'PDF-Lib 엔진 로드 실패. 인터넷 연결 혹은 오프라인 가이드 파일 상태를 확인해 주세요.');
+      setStatus('error', 'PDF-Lib 엔진 로드 실패. 오프라인 가이드 혹은 연결 상태를 확인하십시오.');
       return;
     }
   }
@@ -516,13 +449,11 @@ async function initLibraries() {
 
 initLibraries();
 
-// ── App State ──
-const PRESETS=['A/C','ACTUAL','AGTOW','ALERT LEVEL','ALTN','AMD','AMEND','AMDT','APMS','APPLY','CAUTION','CCF','CDL','CFP PLAN','CHANGES','CLOSURE','COMMENT','CRZ','DIFFERENCE','DISC','DO NOT USE','DOF','EASTBOUND','EDTO','EFB','ELDW','EMERGENCY','ENTRY POINT','ERA','ETP','FOD','FOM','ILS','KAL','KE NOT','KE ROUTE','LDW','MEL','MINIMA','MOD TURB','MTOW','NO AFFECTED','NO KE','NO OPS RTE','NOT AVBL','NOT TO','OUT OF SERVICE','OUTAGE','OVC','RA','REFILE','ROUTE','RQRD','RUNWAY','SH','TAKE OFF WEIGHT','TOW','TRIP','TS','U/S','UNRELIABLE','UNSERVICEABLE','WX DEV'];
+const PRESETS=['A/C','ACTUAL','AGTOW','ALERT LEVEL','ALTN','AMD','AMEND','AMDT','APMS','APPLY','CAUTION','CCF','CDL','CFP PLAN','CHANGES','CLOSURE','COMMENT','CRZ','DIFFERENCE','DISC','DO NOT USE','DOF','EDTO','EDTO EQUAL TIME POINT DATA','EFB','ELDW','EMERGENCY','ENTRY POINT','ERA','ETP','FOD','FOM','ILS','KAL','KE NOT','KE ROUTE','LDW','MEL','MINIMA','MOD TURB','MTOW','NO AFFECTED','NO KE','NO OPS RTE','NOT AVBL','NOT TO','OUT OF SERVICE','OUTAGE','OVC','RA','REFILE','RQRD','RUNWAY','SH','TAKE OFF WEIGHT','TOW','TRIP','TS','U/S','UNRELIABLE','UNSERVICEABLE','WX DEV'];
 const HL_COLORS=[[.36,.78,1],[.36,.78,1],[.36,.78,1],[.36,.78,1],[.36,.78,1],[.36,.78,1]];
 
 let sel=new Set(), custom=[], pdfBytes=null, fname='document', done=false, outBytes=null;
-let currentPreviewPage = 1, totalPreviewPages = 1, pdfJsDocObj = null;
-let detectedAirports = []; // 자동 추출된 [출발공항, 도착공항] 배열 저장
+let detectedAirports = [];
 
 function canRun(){return sel.size>0 && pdfBytes!==null;}
 function updRun(){document.getElementById('runBtn').className='action-btn run-btn'+(canRun()?' active':'');}
@@ -534,7 +465,6 @@ function setStatus(cls,txt){
   document.getElementById('st').textContent=txt;
 }
 
-// Populate Presets inside dropdown
 const pl=document.getElementById('presetList');
 PRESETS.forEach((w,i)=>{
   const d=document.createElement('div');d.className='menu-item';
@@ -546,7 +476,6 @@ PRESETS.forEach((w,i)=>{
   pl.appendChild(d);
 });
 
-// Master switch toggle
 document.getElementById('hlEnabled').addEventListener('change',e=>{
   if(e.target.checked){
     PRESETS.forEach(w=>sel.add(w));
@@ -602,7 +531,6 @@ function renderTags(){
 }
 function rmCustom(i){sel.delete(custom[i]);custom.splice(i,1);renderTags();updBadge();done=false;updRun();}
 
-// File Upload Operations
 const fi=document.getElementById('fi'),ua=document.getElementById('uploadArea');
 fi.addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0]);});
 ua.addEventListener('dragover',e=>{e.preventDefault();ua.style.borderColor='#3b82f6';});
@@ -630,7 +558,6 @@ function loadFile(file){
   r.readAsArrayBuffer(file);
 }
 
-// Helper to perform browser-safe keyword boundaries matching
 function checkKeywordMatch(text, kw) {
   let re;
   const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -650,7 +577,6 @@ function checkKeywordMatch(text, kw) {
   return re.test(text);
 }
 
-// Extract Departure and Arrival Airports from Page headers
 async function extractRouteAirports(pdfJsDoc) {
   const airports = [];
   try {
@@ -666,10 +592,10 @@ async function extractRouteAirports(pdfJsDoc) {
         'W/X', 'H/Y', 'M/A', 'M/D', 'S/C', 'S/A', 'P/D', 'C/A', 'E/D', 'E/A', 'B/D', 'B/A', 'D/O'
       ];
 
-      let match;
-      while ((match = routeRegex.exec(fullText)) !== null) {
-        const dep = match[1];
-        const arr = match[2];
+      let m;
+      while ((m = routeRegex.exec(fullText)) !== null) {
+        const dep = m[1];
+        const arr = m[2];
         if (!excludePatterns.includes(dep) && !excludePatterns.includes(arr)) {
           airports.push(dep, arr);
           break;
@@ -683,7 +609,6 @@ async function extractRouteAirports(pdfJsDoc) {
   return airports;
 }
 
-// ── Highlighting Engine core computation (100% local) ──
 async function runHL(){
   if(!canRun())return;
   if(!libsReady){setStatus('error','Required engines are not initialized.');return;}
@@ -692,8 +617,7 @@ async function runHL(){
   runBtn.className='action-btn run-btn';
   runBtn.innerHTML='Processing locally...';
   setStatus('processing','Analyzing flight plan structure...');
-  done=false;outBytes=null;
-  detectedAirports = [];
+  done=false;outBytes=null;detectedAirports=[];
   document.getElementById('routeBadgeContainer').innerHTML = '';
 
   await new Promise(r=>setTimeout(r,50));
@@ -724,7 +648,7 @@ async function runHL(){
       `;
     }
 
-    // 2. 북마크 인덱스 매칭 및 구역 매핑 사전 분석 (Pre-scan)
+    // 2. 북마크 인덱스 매칭 및 구역 매핑 사전 분석
     const BOOKMARK_PATTERNS=[
       {label:'CFP PLAN',pattern:/CFP\s+PLAN/i},
       {label:'COPY OF ATS',pattern:/COPY\s+OF\s+ATS/i},
@@ -750,10 +674,9 @@ async function runHL(){
 
     const pkg3StartIdx = bmPages['PACKAGE 3'] !== undefined ? bmPages['PACKAGE 3'] : -1;
 
-    setStatus('processing','Extracting text Coordinates locally...');
+    setStatus('processing','Extracting text coordinates locally...');
     let totalHits=0;
 
-    // 3. 페이지별 통합 하이라이트 & 회색 영역 분석 드로잉 패스
     for(let pi=0;pi<numPages;pi++){
       const jsPage=await pdfJsDoc.getPage(pi+1);
       const vp=jsPage.getViewport({scale:1.0});
@@ -765,7 +688,7 @@ async function runHL(){
 
       const isPackage3Page = (pkg3StartIdx !== -1 && pi >= pkg3StartIdx);
 
-      // 줄바꿈 보존을 위한 미세 Y 좌표 바인딩 정렬 및 군집화
+      // Y 좌표 정합성 정렬 및 군집화
       const groupedLines = [];
       const sortedItems = content.items
         .filter(it => it.str && it.str.trim())
@@ -786,62 +709,17 @@ async function runHL(){
         }
       }
 
-      // [3번 요구사항] EQUAL TIME POINT DATA 구역 검출 및 흐린 회색 박스 음영 드로잉 바인딩
-      let etpY = null;
-      let herebyY = null;
-      let etpLineHeight = 10;
-      let herebyLineHeight = 10;
-
-      for (const line of groupedLines) {
-        const lineText = line.items.sort((a,b) => a.transform[4] - b.transform[4]).map(it => it.str).join(' ');
-        
-        if (/EQUAL\s+TIME\s+POINT\s+DATA/i.test(lineText)) {
-          etpY = line.y;
-          etpLineHeight = Math.abs(line.items[0].transform[3]) || 10;
-        }
-        if (/i\s+he?ar?by/i.test(lineText)) {
-          herebyY = line.y;
-          herebyLineHeight = Math.abs(line.items[0].transform[3]) || 10;
-        }
-      }
-
-      // 'EQUAL TIME POINT DATA'를 찾았다면 그 영역 전체에 흐린 그레이 백그라운드 박스를 가장 먼저 그립니다.
-      if (etpY !== null) {
-        const boxX = 20;
-        const boxWidth = lw - 40;
-        
-        // 만약 한 페이지 안에 'I HEREBY' 서명란이 없는 경우, 하단 마진 40pt 위까지를 박스 영역으로 대체합니다.
-        const targetHerebyY = herebyY !== null ? herebyY : (40 / sy);
-        const targetHerebyHeight = herebyY !== null ? herebyLineHeight : 10;
-
-        const pdfEtpY = (etpY + etpLineHeight) * sy;
-        const pdfHerebyY = (targetHerebyY + targetHerebyHeight + 6) * sy; // 'I HEREBY' 텍스트 윗줄 바로 위까지만 음영
-
-        if (pdfEtpY > pdfHerebyY) {
-          const boxHeight = pdfEtpY - pdfHerebyY;
-          libPage.drawRectangle({
-            x: boxX,
-            y: pdfHerebyY,
-            width: boxWidth,
-            height: boxHeight,
-            color: PDFLib.rgb(0.92, 0.93, 0.95), // 흐린 회색
-            opacity: 0.38
-          });
-        }
-      }
-
-      // [1번 요구사항] 줄 전체 하이라이트 유무를 판별한 뒤 하이라이트 가공 적용
+      // 줄 전체 하이라이트 및 개별 단어 중복 필터링
       const SENTENCE_KW = ['CLSD', 'CLOSED', 'RESTRICT'];
 
       for (const line of groupedLines) {
         const lineItems = line.items.sort((a,b) => a.transform[4] - b.transform[4]);
         const lineText = lineItems.map(it => it.str).join(' ');
 
-        // 문장/줄 전체 하이라이트 유도 키워드가 줄 내에 존재하는지 체크
         const hasSentenceKw = SENTENCE_KW.some(kw => checkKeywordMatch(lineText, kw));
 
         if (hasSentenceKw) {
-          // [우선순위 1] 줄 전체 하이라이트 수행 (시인성이 우수한 Royal Blue 컬러 사용)
+          // [우선순위 1] 줄 전체 하이라이트 수행 (로열 블루) 및 단어 하이라이트 무시
           const minX = Math.min(...lineItems.map(it => it.transform[4]));
           const maxX = Math.max(...lineItems.map(it => it.transform[4] + (it.width || 0)));
           const itemY = line.y;
@@ -852,16 +730,14 @@ async function runHL(){
             y: itemY * sy,
             width: (maxX - minX) * sx,
             height: Math.max(itemH * sy, 8),
-            color: PDFLib.rgb(0.15, 0.52, 0.90), // 로열 블루 하이라이트
+            color: PDFLib.rgb(0.15, 0.52, 0.90),
             opacity: 0.45,
           });
           totalHits++;
-
-          // [핵심 조건] 해당 줄에 포함된 개별 키워드들은 추가 하이라이트를 하지 않도록 프로세스 즉시 스킵 (중복 방지)
-          continue;
+          continue; 
         }
 
-        // [우선순위 2] 줄 전체 하이라이트가 안 된 평범한 행인 경우에만 개별 단어 하이라이트 수행
+        // [우선순위 2] 평범한 일반 행일 때에만 단어 단위 하이라이트 적용
         for (const item of lineItems) {
           const s = item.str;
           const tx = item.transform;
@@ -870,7 +746,6 @@ async function runHL(){
           const itemH = Math.abs(tx[3])||10;
           const charW = itemW / Math.max(s.length, 1);
 
-          // A. 일반 프리셋/커스텀 단어 하이라이트
           for(const kw of keywords){
             let re;
             try {
@@ -885,12 +760,22 @@ async function runHL(){
               const rw=kw.length*charW*sx;
               const rh=itemH*sy;
               const[r,g,b]=colorMap[kw.toUpperCase()];
-              libPage.drawRectangle({x:rx,y:ry,width:Math.max(rw,4),height:Math.max(rh,8),color:PDFLib.rgb(r,g,b),opacity:0.4});
+              libPage.drawRectangle({x:ry, y:ry, width:Math.max(rw,4), height:Math.max(rh,8), color:PDFLib.rgb(r,g,b), opacity:0.4});
+              
+              // Correcting pdf-lib drawing layout coords mapping
+              libPage.drawRectangle({
+                x: rx,
+                y: ry,
+                width: Math.max(rw, 4),
+                height: Math.max(rh, 8),
+                color: PDFLib.rgb(r,g,b),
+                opacity: 0.4
+              });
               totalHits++;
             }
           }
 
-          // B. 출발/도착 공항 정보 하이라이트 (PACKAGE 3 구역의 페이지에서만 기존 하늘색 하이라이트 적용)
+          // 출발/도착 공항 정보 (PACKAGE 3 구역 한정)
           if (isPackage3Page && detectedAirports.length === 2) {
             const dep = detectedAirports[0];
             const arr = detectedAirports[1];
@@ -1011,14 +896,7 @@ async function runHL(){
     }
     
     setStatus('done',`Completed! ${numPages} pages, ${totalHits} elements highlighted${routeInfoStr}, ${bmCount} bookmarks set.`);
-    
     document.getElementById('previewCard').style.display='block';
-    document.getElementById('canvasCard').style.display='block';
-    
-    pdfJsDocObj = await pdfjsLib.getDocument({data:outBytes.buffer.slice(0)}).promise;
-    totalPreviewPages = pdfJsDocObj.numPages;
-    currentPreviewPage = 1;
-    renderPreview();
     
     dlPDF();
 
@@ -1029,41 +907,6 @@ async function runHL(){
   }
 }
 
-// ── Live Interactive Preview Renderer ──
-async function renderPreview() {
-  if (!pdfJsDocObj) return;
-  document.getElementById('pageIndicator').textContent = `Page ${currentPreviewPage} / ${totalPreviewPages}`;
-  document.getElementById('prevPage').disabled = (currentPreviewPage <= 1);
-  document.getElementById('nextPage').disabled = (currentPreviewPage >= totalPreviewPages);
-
-  try {
-    const page = await pdfJsDocObj.getPage(currentPreviewPage);
-    const canvas = document.getElementById('previewCanvas');
-    const context = canvas.getContext('2d');
-    
-    const viewport = page.getViewport({ scale: 1.2 });
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-
-    const renderContext = {
-      canvasContext: context,
-      viewport: viewport
-    };
-    await page.render(renderContext).promise;
-  } catch (err) {
-    console.error("Preview render failed: ", err);
-  }
-}
-
-function changePage(dir) {
-  const target = currentPreviewPage + dir;
-  if (target >= 1 && target <= totalPreviewPages) {
-    currentPreviewPage = target;
-    renderPreview();
-  }
-}
-
-// ── Standard Download Trigger ──
 function dlPDF(){
   if(!done||!outBytes)return;
   try{

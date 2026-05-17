@@ -314,19 +314,19 @@ body{
 
 <div class="header">
   <h1>TEXT <span>HIGHLIGHTER</span></h1>
-  <p>Offline Ready Smart NOTAM Highlighting & CFP Bookmark Generator</p>
+  <p>Offline Ready Smart NOTAM Highlighter & CFP Bookmark Auto Generator</p>
 </div>
 
 <div class="body">
   <div class="app">
     
-    <!-- Offline Guide Panel -->
+    <!-- Offline Information Panel -->
     <div class="card">
       <div class="card-title">🔌 Offline Execution Guide (EFB Optimized)</div>
       <div class="offline-instruction">
-        This app executes <b>100% on local browser memory</b>. No uploaded documents are ever sent or stored on external servers.<br>
-        <b>To run in-flight with no internet access, please pre-download:</b><br>
-        • <b>pdf.min.js</b> / <b>pdf.worker.min.js</b> / <b>pdf-lib.min.js</b> and place them in the <b>same directory</b> as this HTML file.
+        This program runs <b>100% on local device browser memory</b>. Document parsing and decoding processes are safely executed locally without any server transmissions.<br>
+        <b>To run offline in-flight, make sure to download the following engine files in advance:</b><br>
+        • Save <b>pdf.min.js</b> / <b>pdf.worker.min.js</b> / <b>pdf-lib.min.js</b> in the same folder as this HTML file.
       </div>
     </div>
 
@@ -336,7 +336,7 @@ body{
       <div class="upload-area" id="uploadArea" onclick="document.getElementById('fi').click()">
         <div class="upload-icon">📁</div>
         <div class="upload-text">
-          <div class="upload-label">Select a PDF file or drag & drop</div>
+          <div class="upload-label">Click here or drag & drop your flight package PDF</div>
           <div class="upload-sub">Supported format: .pdf only</div>
           <div class="file-name" id="fileName"></div>
         </div>
@@ -345,13 +345,13 @@ body{
       </div>
     </div>
 
-    <!-- 2. HIGHLIGHT SETTINGS (Dropdown & Compact Built-in Color Selection) -->
+    <!-- 2. Highlight Configuration -->
     <div class="card">
       <div class="card-title">⚙️ 2. HIGHLIGHT SETTINGS</div>
       <div class="hl-row" style="justify-content: space-between;">
         <div style="display: flex; align-items: center; gap: 12px;">
           <label class="toggle"><input type="checkbox" id="hlEnabled"><span class="slider"></span></label>
-          <span class="hl-label" style="font-size: 13px; font-weight: 700;">NOTAM KEYWORDS ACTIVE</span>
+          <span class="hl-label" style="font-size: 13px; font-weight: 700;">Select All NOTAM Keywords</span>
         </div>
         <div class="dropdown-wrap">
           <button class="dropdown-btn" id="dropBtn" onclick="toggleDD()">
@@ -364,48 +364,48 @@ body{
         </div>
       </div>
       
-      <!-- Compact built-in inline color picker row -->
+      <!-- Highlight theme selector -->
       <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #1e293b; display: flex; align-items: center; justify-content: space-between;">
-        <span style="font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px;">HIGHLIGHT COLOR</span>
+        <span style="font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px;">Highlight Marker Color</span>
         <div style="display: flex; gap: 8px;">
           <button class="color-chip active" id="chip-blue" onclick="selectColor('blue', [0.36, 0.78, 1.0])" style="background: #3b82f6;" title="Sky Blue"></button>
           <button class="color-chip" id="chip-pink" onclick="selectColor('pink', [1.0, 0.45, 0.65])" style="background: #ff73a6;" title="Soft Pink"></button>
-          <button class="color-chip" id="chip-yellow" onclick="selectColor('yellow', [1.0, 0.75, 0.0])" style="background: #ffc000;" title="Aviation Yellow"></button>
-          <button class="color-chip" id="chip-green" onclick="selectColor('green', [0.22, 0.85, 0.48])" style="background: #38d97a;" title="Emerald Green"></button>
+          <button class="color-chip" id="chip-yellow" onclick="selectColor('yellow', [1.0, 0.75, 0.0])" style="background: #ffc000;" title="Golden Yellow"></button>
+          <button class="color-chip" id="chip-green" onclick="selectColor('green', [0.22, 0.85, 0.48])" style="background: #38d97a;" title="Neon Green"></button>
         </div>
       </div>
     </div>
 
-    <!-- Section 3: Add Custom Word Tags -->
+    <!-- Section 3: Add custom word tags -->
     <div class="card">
       <div class="card-title">✏️ 3. ADD CUSTOM WORD TAGS</div>
       <div class="custom-add-wrap">
         <div class="custom-add-row">
-          <input type="text" id="cwInput" placeholder="Enter keywords (comma or space separated)">
+          <input type="text" id="cwInput" placeholder="Enter custom words (comma or space separated)">
           <button onclick="addCustom()">Add</button>
         </div>
       </div>
       <div class="tag-list" id="tagList"></div>
     </div>
 
-    <!-- Section 4: Run Engine -->
+    <!-- Section 4: Engine Runner -->
     <div class="card">
       <div class="card-title">
-        🚀 4. RUN ENGINE
+        🚀 4. RUN SYSTEM ENGINE
         <span id="routeBadgeContainer"></span>
       </div>
-      <button class="action-btn run-btn" id="runBtn" onclick="handleBtn()">▶ RUN HIGHLIGHTER</button>
+      <button class="action-btn run-btn" id="runBtn" onclick="handleBtn()">▶ RUN ENGINE</button>
       <div class="status-bar" id="sb">
         <div class="status-dot"></div>
         <span id="st">Engine ready. Select keywords and upload PDF to start.</span>
       </div>
     </div>
 
-    <!-- PDF Save Panel -->
+    <!-- Download Control Panel -->
     <div class="card" id="previewCard" style="display:none">
-      <div class="card-title">💾 5. SAVE MODIFIED PDF</div>
+      <div class="card-title">💾 5. SAVE OPTIMIZED DOCUMENT</div>
       <p style="font-size:11px;color:#94a3b8;margin-bottom:12px">
-        If automatic download is blocked, tap the button below to save or share your optimized flight plan document.
+        If automatic download is blocked, tap the button below to save to your local drive or share/Airdrop with your crew.
       </p>
       <button class="action-btn dl-btn active" onclick="dlPDF()">
         💾 Save / Share PDF
@@ -486,7 +486,6 @@ initLibraries();
 const PRESETS=['A/C','ACTUAL','AGTOW','ALERT LEVEL','ALTN','AMD','AMEND','AMDT','APMS','APPLY','CAUTION','CCF','CDL','CFP PLAN','CHANGES','CLOSURE','CRZ','DIFFERENCE','DISC','DO NOT USE','DOF','EFB','ELDW','EMERGENCY','ENTRY POINT','ERA','ETP','FOD','FOM','ILS','KAL','KE NOT','KE ROUTE','LDW','MEL','MINIMA','MOD TURB','MTOW','NO AFFECTED','NO KE','NO OPS RTE','NOT AVBL','NOT TO','OUT OF SERVICE','OUTAGE','OVC','RA','REFILE','RQRD','RUNWAY','SH','TAKE OFF WEIGHT','TOW','TRIP','TS','U/S','UNRELIABLE','UNSERVICEABLE','WX DEV'];
 const HL_COLORS=[[.36,.78,1],[.36,.78,1],[.36,.78,1],[.36,.78,1],[.36,.78,1],[.36,.78,1]];
 
-// Dynamic Theme state configuration
 let currentThemeName = 'blue';
 let activeHlColorRGB = [0.36, 0.78, 1.0]; // Default Sky Blue
 
@@ -494,7 +493,6 @@ function selectColor(name, rgbArray) {
   currentThemeName = name;
   activeHlColorRGB = rgbArray;
   
-  // Update Selection visual active states for color chips
   document.querySelectorAll('.color-chip').forEach(chip => {
     chip.classList.remove('active');
   });
@@ -506,8 +504,8 @@ function selectColor(name, rgbArray) {
 
 let sel=new Set(), custom=[], pdfBytes=null, fname='document', done=false, outBytes=null;
 let detectedAirports = [];
-let extractedFileDate = ''; // Auto-extracted Flight Date (MMDD)
-let extractedFlightNum = ''; // Auto-extracted Flight Number (e.g. KAL401)
+let extractedFileDate = ''; 
+let extractedFlightNum = ''; 
 
 function canRun(){return sel.size>0 && pdfBytes!==null;}
 function updRun(){document.getElementById('runBtn').className='action-btn run-btn'+(canRun()?' active':'');}
@@ -603,14 +601,14 @@ function loadFile(file){
   extractedFlightNum = '';
   document.getElementById('routeBadgeContainer').innerHTML = '';
   updRun();
-  setStatus('processing','Loading local PDF file structure...');
+  setStatus('processing','Loading local memory dump...');
   const r=new FileReader();
   r.onload=e=>{
     pdfBytes=new Uint8Array(e.target.result);
     updRun();
-    setStatus('ready',`${file.name} loaded. Click RUN to process.`);
+    setStatus('ready',`${file.name} loaded. Press RUN to start with automatic auto-decoding.`);
   };
-  r.onerror=()=>setStatus('error','Could not read local file contents.');
+  r.onerror=()=>setStatus('error','Failed to read local document.');
   r.readAsArrayBuffer(file);
 }
 
@@ -633,22 +631,73 @@ function checkKeywordMatch(text, kw) {
   return re.test(text);
 }
 
-// ── [Rule 2] Extracts only the exact flight origin & destination pair from Dispatch Release Information ──
+// ── [지능형 오프셋 감지 및 영문 텍스트 표준화 디코더] ──
+function detectPageOffset(rawText) {
+  const testKeywords = ["NOTAM", "PACKAGE", "PLAN", "FLIGHT", "KOREAN", "RELEASE", "WEATHER", "AIR", "ROUTE", "ALTN", "INFO"];
+  let normalMatchCount = 0;
+  for (const kw of testKeywords) {
+    if (new RegExp(kw, 'i').test(rawText)) normalMatchCount++;
+  }
+  if (normalMatchCount >= 2) {
+    return 0; 
+  }
+  
+  let bestOffset = 0;
+  let bestMatches = 0;
+  
+  const offsetsToTest = [29, -29, 0];
+  for (let i = -120; i <= 120; i++) {
+    if (!offsetsToTest.includes(i)) offsetsToTest.push(i);
+  }
+  
+  for (const offset of offsetsToTest) {
+    if (offset === 0) continue;
+    let decodedSample = "";
+    const sampleLen = Math.min(rawText.length, 1200);
+    for (let j = 0; j < sampleLen; j++) {
+      decodedSample += String.fromCharCode(rawText.charCodeAt(j) + offset);
+    }
+    
+    let matchCount = 0;
+    for (const kw of testKeywords) {
+      if (decodedSample.toUpperCase().includes(kw)) matchCount++;
+    }
+    
+    if (matchCount > bestMatches) {
+      bestMatches = matchCount;
+      bestOffset = offset;
+      if (bestMatches >= 3) break; 
+    }
+  }
+  
+  return bestMatches >= 1 ? bestOffset : 0;
+}
+
+function decodeStr(str, offset) {
+  if (!offset || !str) return str;
+  let decoded = "";
+  for (let i = 0; i < str.length; i++) {
+    decoded += String.fromCharCode(str.charCodeAt(i) + offset);
+  }
+  return decoded;
+}
+
 async function extractReleaseAirportsByRule2(pdfJsDoc) {
   const airports = [];
   try {
     for (let pNum = 1; pNum <= pdfJsDoc.numPages; pNum++) {
       const page = await pdfJsDoc.getPage(pNum);
       const textContent = await page.getTextContent();
-      const fullText = textContent.items.map(it => it.str).join(' ');
+      const rawText = textContent.items.map(it => it.str).join(' ');
+      const offset = detectPageOffset(rawText);
+      const decodedText = textContent.items.map(it => decodeStr(it.str, offset)).join(' ');
 
-      // Rule 2: I HEREBY RELEASE THE FLIGHT [A-Z0-9/]+, \s* ([A-Z]{3}/[A-Z]{3}) 구조 매칭
       const releaseRegex = /I\s+HEREBY\s+RELEASE\s+(THE\s+)?FLIGHT\s+[A-Z0-9]+\/\d{2}[A-Z]{3},\s*([A-Z]{3})\/([A-Z]{3})/i;
-      const m = fullText.match(releaseRegex);
+      const m = decodedText.match(releaseRegex);
       if (m) {
         airports.push(m[2].toUpperCase().trim());
         airports.push(m[3].toUpperCase().trim());
-        break; // Stop immediately after capturing the true flight IATA route pair
+        break; 
       }
     }
 
@@ -657,10 +706,12 @@ async function extractReleaseAirportsByRule2(pdfJsDoc) {
         for (let pNum = 1; pNum <= Math.min(3, pdfJsDoc.numPages); pNum++) {
           const page = await pdfJsDoc.getPage(pNum);
           const textContent = await page.getTextContent();
-          const fullText = textContent.items.map(it => it.str).join(' ');
+          const rawText = textContent.items.map(it => it.str).join(' ');
+          const offset = detectPageOffset(rawText);
+          const decodedText = textContent.items.map(it => decodeStr(it.str, offset)).join(' ');
           
           const fallbackRegex = /FLIGHT\s+RELEASE\s+[A-Z0-9]+\s+([A-Z]{3,4})\s*[\/-]\s*([A-Z]{3,4})/i;
-          const m = fullText.match(fallbackRegex);
+          const m = decodedText.match(fallbackRegex);
           if (m) {
             airports.push(m[1].toUpperCase().trim().substring(0,3));
             airports.push(m[2].toUpperCase().trim().substring(0,3));
@@ -670,46 +721,42 @@ async function extractReleaseAirportsByRule2(pdfJsDoc) {
       } catch (e) {}
     }
   } catch (err) {
-    console.warn("Rule 2 Dispatch airport extraction failed: ", err);
+    console.warn("Airport code extraction failed: ", err);
   }
   return airports;
 }
 
-// ── 날짜 및 편명 정보 메타 데이터 자동 추출 엔진 ──
 async function extractMetadata(pdfJsDoc) {
   try {
     const firstPage = await pdfJsDoc.getPage(1);
     const textContent = await firstPage.getTextContent();
-    const fullText = textContent.items.map(it => it.str).join(' ');
+    const rawText = textContent.items.map(it => it.str).join(' ');
+    const offset = detectPageOffset(rawText);
+    const decodedText = textContent.items.map(it => decodeStr(it.str, offset)).join(' ');
 
-    // 1. 편명 정보(Flight Number) 스캔 매칭 (예: KAL401, KE0401, KAL0914)
-    const flightMatch = fullText.match(/\b(KAL|KE|KAL\s+|KE\s*)(\d{3,4})\b/i);
+    const flightMatch = decodedText.match(/\b(KAL|KE|KAL\s+|KE\s*)(\d{3,4})\b/i);
     if (flightMatch) {
       const carrier = flightMatch[1].trim().toUpperCase();
       const num = flightMatch[2];
       extractedFlightNum = carrier + num;
     }
 
-    // 2. 날짜 정보(Date) 스캔 및 MMDD 변환 매칭 (예: 16 May 2026, 16/MAY/26, 05MAY)
     const monthsMap = {
       jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06',
       jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12'
     };
 
-    // 패턴 A 검색: 16 May 2026
-    const dateMatchA = fullText.match(/\b(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}\b/i);
+    const dateMatchA = decodedText.match(/\b(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}\b/i);
     if (dateMatchA) {
       const monthStr = dateMatchA[2].toLowerCase().substring(0, 3);
       extractedFileDate = (monthsMap[monthStr] || '01') + dateMatchA[1].padStart(2, '0');
     } else {
-      // 패턴 B 검색: 16/MAY/26 또는 16/MAY/2026
-      const dateMatchB = fullText.match(/\b(\d{1,2})\/([A-Z]{3})\/(\d{2,4})\b/i);
+      const dateMatchB = decodedText.match(/\b(\d{1,2})\/([A-Z]{3})\/(\d{2,4})\b/i);
       if (dateMatchB) {
         const monthStr = dateMatchB[2].toLowerCase();
         extractedFileDate = (monthsMap[monthStr] || '01') + dateMatchB[1].padStart(2, '0');
       } else {
-        // 패턴 C 검색: 05MAY (두자리 일자 + 세자리 월)
-        const dateMatchC = fullText.match(/\b(\d{2})([A-Z]{3})\b/i);
+        const dateMatchC = decodedText.match(/\b(\d{2})([A-Z]{3})\b/i);
         if (dateMatchC) {
           const monthStr = dateMatchC[2].toLowerCase();
           extractedFileDate = (monthsMap[monthStr] || '01') + dateMatchC[1].padStart(2, '0');
@@ -717,31 +764,30 @@ async function extractMetadata(pdfJsDoc) {
       }
     }
   } catch (err) {
-    console.warn("Metadata auto-extraction failed: ", err);
+    console.warn("Metadata extraction failed: ", err);
   }
 }
 
-// ── 테마별 동색 계열 짙고 선명한 톤 매핑 세팅 ──
 function getIntenseHlColor(themeName) {
   switch (themeName) {
-    case 'pink':   return [0.85, 0.15, 0.40]; // 딥 핑크/크림슨
-    case 'yellow': return [0.85, 0.40, 0.00]; // 다크 오렌지/앰버
-    case 'green':  return [0.05, 0.55, 0.25]; // 짙은 포레스트 그린
+    case 'pink':   return [0.85, 0.15, 0.40]; 
+    case 'yellow': return [0.85, 0.40, 0.00]; 
+    case 'green':  return [0.05, 0.55, 0.25]; 
     case 'blue':
-    default:       return [0.15, 0.52, 0.90]; // 로열 블루
+    default:       return [0.15, 0.52, 0.90]; 
   }
 }
 
 async function runHL(){
   if(!canRun())return;
-  if(!libsReady){setStatus('error','Required engines are not initialized.');return;}
+  if(!libsReady){setStatus('error','Required libraries not fully loaded.');return;}
 
   const SENTENCE_KW = ['CLSD', 'CLOSED', 'RESTRICT'];
 
   const runBtn=document.getElementById('runBtn');
   runBtn.className='action-btn run-btn';
   runBtn.innerHTML='Processing locally...';
-  setStatus('processing','Analyzing flight plan structure...');
+  setStatus('processing','Restoring text encoding & analyzing highlights...');
   done=false;outBytes=null;detectedAirports=[];
   document.getElementById('routeBadgeContainer').innerHTML = '';
 
@@ -764,7 +810,6 @@ async function runHL(){
     const pdfLibDoc=await PDFLib.PDFDocument.load(pdfBytes,{ignoreEncryption:true});
     const libPages=pdfLibDoc.getPages();
 
-    // 1. [보정 완료] 오직 Dispatch Release Info 구역에서만 해당 비행편의 고유 IATA 출발/도착 공항 코드 2개만 엄격히 추출
     detectedAirports = await extractReleaseAirportsByRule2(pdfJsDoc);
 
     if (detectedAirports.length === 2) {
@@ -774,31 +819,33 @@ async function runHL(){
       `;
     }
 
-    // 2. 날짜 및 편명 메타데이터 자동 추출 실행
     await extractMetadata(pdfJsDoc);
 
-    // 3. [복원 완료] 북마크 인덱스 매칭 및 구역 매핑 사전 분석 (NOTAM 1, 2, 3으로 레이블 업데이트 완료)
     const BOOKMARK_PATTERNS=[
       {label:'CFP PLAN',pattern:/CFP\s+PLAN/i},
       {label:'COPY OF ATS',pattern:/COPY\s+OF\s+ATS/i},
       {label:'DISPATCH RELEASE INFORMATION',pattern:/DISPATCH\s+RELEASE\s+INFORMATION|DISPATCH\s+RELEASE\s+INFO/i},
       {label:'EQUAL TIME POINT DATA',pattern:/EQUAL\s+TIME\s+POINT\s+DATA/i},
       {label:'WEATHER BRIEFING',pattern:/WEATHER\s+BRIEFING/i},
-      {label:'NOTAM 1',pattern:/(NOTAM\s+)?PACKAGE\s+1/i},
-      {label:'NOTAM 2',pattern:/(NOTAM\s+)?PACKAGE\s+2(?:\s+KE)?/i},
-      {label:'NOTAM 3',pattern:/(NOTAM\s+)?PACKAGE\s+3/i},
+      {label:'NOTAM 1',pattern:/(NOTAM\s*(PACKAGE)?\s*[-_]?\s*1)\b|(\[\s*NOTAM\s*1\s*\])/i},
+      {label:'NOTAM 2',pattern:/(NOTAM\s*(PACKAGE)?\s*[-_]?\s*2)\b|(\[\s*NOTAM\s*2\s*\])/i},
+      {label:'NOTAM 3',pattern:/(NOTAM\s*(PACKAGE)?\s*[-_]?\s*3)\b|(\[\s*NOTAM\s*3\s*\])/i},
     ];
     
-    const bmPages={};let pkg1Page=-1;
+    const bmPages={};
     for(let pi=0;pi<numPages;pi++){
       const jsPage2=await pdfJsDoc.getPage(pi+1);
       const tc=await jsPage2.getTextContent();
-      const pageText=tc.items.map(it=>it.str).join(' ');
+      const rawText=tc.items.map(it=>it.str).join(' ');
+      
+      const offset = detectPageOffset(rawText);
+      const pageText=tc.items.map(it=>decodeStr(it.str, offset)).join(' ');
+      
       for(const bm of BOOKMARK_PATTERNS){
         if(bmPages[bm.label]!==undefined)continue;
-        if(bm.label==='NOTAM 1'&&bm.pattern.test(pageText)){bmPages[bm.label]=pi;pkg1Page=pi;}
-        else if(bm.label==='NOTAM 2'){if(pkg1Page>=0&&pi>pkg1Page&&bm.pattern.test(pageText))bmPages[bm.label]=pi;}
-        else if(bm.label!=='NOTAM 1'&&bm.pattern.test(pageText))bmPages[bm.label]=pi;
+        if(bm.pattern.test(pageText)){
+          bmPages[bm.label]=pi;
+        }
       }
     }
 
@@ -807,25 +854,25 @@ async function runHL(){
     const weatherBriefingIdx = bmPages['WEATHER BRIEFING'] !== undefined ? bmPages['WEATHER BRIEFING'] : -1;
     const pkg1PageIdx = bmPages['NOTAM 1'] !== undefined ? bmPages['NOTAM 1'] : -1;
 
-    // Dispatch Release section spans from dispatchReleaseIdx to whichever section comes next
     let dispatchEndIdx = numPages;
     if (weatherBriefingIdx !== -1) dispatchEndIdx = weatherBriefingIdx;
     else if (pkg1PageIdx !== -1) dispatchEndIdx = pkg1PageIdx;
     else if (pkg3StartIdx !== -1) dispatchEndIdx = pkg3StartIdx;
 
-    // EDTO EQUAL TIME POINT DATA 구문 발견 기준점 탐색
     let edtoPointDataPageIdx = -1;
     for(let pi=0;pi<numPages;pi++){
       const jsPageScan=await pdfJsDoc.getPage(pi+1);
       const textC=await jsPageScan.getTextContent();
       const pText=textC.items.map(it=>it.str).join(' ');
-      if (/EDTO\s+EQUAL\s+TIME\s+POINT\s+DATA/i.test(pText)) {
+      const scanOffset = detectPageOffset(pText);
+      const decodedScanText = textC.items.map(it => decodeStr(it.str, scanOffset)).join(' ');
+      if (/EDTO\s+EQUAL\s+TIME\s+POINT\s+DATA/i.test(decodedScanText)) {
         edtoPointDataPageIdx = pi;
         break;
       }
     }
 
-    setStatus('processing','Extracting text coordinates locally...');
+    setStatus('processing','Calculating highlight positions and drawing...');
     let totalHits=0;
 
     for(let pi=0;pi<numPages;pi++){
@@ -837,13 +884,18 @@ async function runHL(){
       const sy=lh/vp.height;
       const content=await jsPage.getTextContent();
 
+      const rawPageText = content.items.map(it => it.str).join(' ');
+      const pageOffset = detectPageOffset(rawPageText);
+
       const isPackage3Page = (pkg3StartIdx !== -1 && pi >= pkg3StartIdx);
       const isDispatchPage = (dispatchReleaseIdx !== -1 && pi >= dispatchReleaseIdx && pi < dispatchEndIdx);
 
-      // Y 좌표 정합성 정렬 및 군집화
       const groupedLines = [];
       const sortedItems = content.items
-        .filter(it => it.str && it.str.trim())
+        .filter(it => {
+          const sDec = decodeStr(it.str, pageOffset);
+          return sDec && sDec.trim();
+        })
         .sort((a, b) => b.transform[5] - a.transform[5]);
 
       for (const item of sortedItems) {
@@ -865,15 +917,12 @@ async function runHL(){
 
       for (const line of groupedLines) {
         const lineItems = line.items.sort((a,b) => a.transform[4] - b.transform[4]);
-        const lineText = lineItems.map(it => it.str).join(' ');
+        const lineText = lineItems.map(it => decodeStr(it.str, pageOffset)).join(' ');
 
-        // [정밀 보완완료] 지정 구역(Dispatch Release 구역 & NOTAM Package 3 구역) 내에서 오직 현재 편 노선 코드 2개에만 완벽 매치할 때 행 전체 하이라이트 가동
         if (isDispatchPage || isPackage3Page) {
           if (detectedAirports.length === 2) {
             const dep = detectedAirports[0];
             const arr = detectedAirports[1];
-            
-            // 패턴 정형 검증: 출발 공항과 도착 공항이 슬래시나 대시로 묶여 있는 고유 노선 페어(e.g., MAD/ICN 또는 ICN/MAD)만 정확히 검출 (단독 공항명 RKSI 등 오탐지 차단)
             const routeCheckRegex = new RegExp(`(?:\\b${dep}\\s*[\\/-]\\s*${arr}\\b|\\b${arr}\\s*[\\/-]\\s*${dep}\\b)`, 'i');
 
             if (routeCheckRegex.test(lineText)) {
@@ -882,7 +931,6 @@ async function runHL(){
               const itemY = line.y;
               const itemH = Math.abs(lineItems[0].transform[3]) || 10;
 
-              // 사용자가 선택한 전용 색상 테마로 라인 전체를 드로잉
               libPage.drawRectangle({
                 x: minX * sx,
                 y: itemY * sy,
@@ -897,7 +945,6 @@ async function runHL(){
           }
         }
 
-        // ETP1, ETP2, ETP3 구문 감지 및 날짜 영역 제한부 가동 필터
         const isEtpLine = /\betp\s*[123]/i.test(lineText);
         if (isEtpLine && isAfterEdtoHeader) {
           const minX = Math.min(...lineItems.map(it => it.transform[4]));
@@ -905,7 +952,6 @@ async function runHL(){
           const itemY = line.y;
           const itemH = Math.abs(lineItems[0].transform[3]) || 10;
 
-          // Apply active user-selected highlight color
           libPage.drawRectangle({
             x: minX * sx,
             y: itemY * sy,
@@ -925,7 +971,6 @@ async function runHL(){
           const itemY = line.y;
           const itemH = Math.abs(lineItems[0].transform[3]) || 10;
 
-          // Apply active user-selected highlight color
           libPage.drawRectangle({
             x: minX * sx,
             y: itemY * sy,
@@ -946,7 +991,6 @@ async function runHL(){
           const itemY = line.y;
           const itemH = Math.abs(lineItems[0].transform[3]) || 10;
 
-          // 사용자가 선택한 하이라이트 색상 계열과 어울리는 더 짙고 명확한 색상 계열(intenseRGB) 적용
           libPage.drawRectangle({
             x: minX * sx,
             y: itemY * sy,
@@ -960,7 +1004,7 @@ async function runHL(){
         }
 
         for (const item of lineItems) {
-          const s = item.str;
+          const s = decodeStr(item.str, pageOffset); 
           const tx = item.transform;
           const itemX = tx[4], itemY = tx[5];
           const itemW = item.width||0;
@@ -981,7 +1025,6 @@ async function runHL(){
               const rw=kw.length*charW*sx;
               const rh=itemH*sy;
               
-              // Apply active user-selected highlight color
               libPage.drawRectangle({
                 x: rx,
                 y: ry,
@@ -1002,7 +1045,8 @@ async function runHL(){
           if (msaVal >= 100) {
             const targetMsaStr = msaMatch[1];
             for (const item of lineItems) {
-              let idx = item.str.indexOf("/" + targetMsaStr);
+              const s = decodeStr(item.str, pageOffset);
+              let idx = s.indexOf("/" + targetMsaStr);
               if (idx !== -1) {
                 idx += 1;
                 const tx = item.transform;
@@ -1012,7 +1056,6 @@ async function runHL(){
                 const rw = targetMsaStr.length * charW * sx;
                 const rh = (Math.abs(tx[3]) || 10) * sy;
 
-                // Apply active user-selected highlight color
                 libPage.drawRectangle({
                   x: rx - 1,
                   y: ry - 1,
@@ -1022,14 +1065,13 @@ async function runHL(){
                   opacity: 0.4
                 });
                 totalHits++;
-              } else if (item.str === targetMsaStr) {
+              } else if (s === targetMsaStr) {
                 const tx = item.transform;
                 const rx = tx[4] * sx;
                 const ry = tx[5] * sy;
                 const rw = (item.width || 0) * sx;
                 const rh = (Math.abs(tx[3]) || 10) * sy;
 
-                // Apply active user-selected highlight color
                 libPage.drawRectangle({
                   x: rx - 1,
                   y: ry - 1,
@@ -1072,12 +1114,16 @@ async function runHL(){
     if(cfpPageIdx!==undefined&&coaPageIdx!==undefined){
       const cfpJsPage=await pdfJsDoc.getPage(cfpPageIdx+1);
       const cfpContent=await cfpJsPage.getTextContent();
+      
+      const rawCfpText = cfpContent.items.map(it => it.str).join(' ');
+      const cfpOffset = detectPageOffset(rawCfpText);
+
       const cfpItems=cfpContent.items.slice().sort((a,b)=>{
         const ay=a.transform[5],by2=b.transform[5];
         if(Math.abs(ay-by2)>2)return by2-ay;
         return a.transform[4]-b.transform[4];
       });
-      const cfpFullText=cfpItems.map(it=>it.str).join(' ');
+      const cfpFullText=cfpItems.map(it=>decodeStr(it.str, cfpOffset)).join(' ');
       const firstDot=cfpFullText.indexOf('..');
       const lastDot=cfpFullText.lastIndexOf('..');
       if(firstDot!==-1&&lastDot!==-1){
@@ -1128,7 +1174,7 @@ async function runHL(){
     dlPDF();
 
   }catch(err){
-    setStatus('error','Local execution fault: '+err.message);
+    setStatus('error','Execution error: '+err.message);
     runBtn.className='action-btn run-btn active';
     runBtn.innerHTML='▶ RUN HIGHLIGHTER';
   }
@@ -1157,7 +1203,7 @@ function dlPDF(){
     document.body.removeChild(a);
     setTimeout(()=>URL.revokeObjectURL(url), 30000);
   }catch(e){
-    setStatus('error','Local writing error: '+e.message);
+    setStatus('error','Failed to write PDF: '+e.message);
   }
 }
 </script>

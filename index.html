@@ -17,7 +17,7 @@ body{
 .header{
   background:linear-gradient(135deg,#111827,#0f172a);
   border-bottom:1px solid #1e293b;
-  padding:24px 16px 12px; /* Bottom padding reduced to place video closer */
+  padding:24px 16px 12px;
   position: relative;
 }
 .header-container {
@@ -27,7 +27,7 @@ body{
   width: 100%;
 }
 .header-text {
-  text-align: center; /* Centers title and description elements perfectly */
+  text-align: center;
 }
 .header h1{
   font-size:22px;
@@ -44,25 +44,23 @@ body{
   margin-top:4px;
 }
 
-/* New CSS for center-aligned, smaller video container */
 .video-banner {
   max-width: 640px;
-  width: 70%; /* "slightly smaller" relative to main container */
-  height: 60px; /* Slim section height */
-  margin: 12px auto 0; /* Centered, top margin, no bottom margin */
-  border-radius: 8px; /* Rounded corners */
-  overflow: hidden; /* Contains video inside corners */
-  background: rgba(16, 24, 40, 0.3); /* Dark, subtle background */
-  border: 1px solid rgba(59, 130, 246, 0.2); /* Matching highlight colors, subtle border */
+  width: 70%;
+  height: 60px;
+  margin: 12px auto 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(16, 24, 40, 0.3);
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
-/* New CSS for full-width, muted video inside the banner */
 .video-banner video {
-  width: 100%; /* Takes full container width */
-  height: 100%; /* Takes full container height */
-  object-fit: cover; /* Maintains aspect ratio, crops if needed, fills area */
-  display: block; /* Removes bottom spacing */
-  opacity: 0.8; /* Slight fade effect */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.8;
 }
 
 .body{
@@ -83,10 +81,10 @@ body{
   border:1px solid #1e293b;
   padding:16px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  margin-bottom: 16px; /* Added consistent margin below each card */
+  margin-bottom: 16px;
 }
 .card:last-child {
-  margin-bottom: 0; /* Remove margin from last card */
+  margin-bottom: 0;
 }
 .card-title{
   font-size:11px;
@@ -122,9 +120,11 @@ body{
 .upload-area input{display:none}
 .upload-icon{font-size:22px;flex-shrink:0}
 .upload-text{flex:1; min-width:0;}
-.upload-label{font-size:12.5px;color:#cbd5e1;font-weight:600;white-space:nowrap;cursor:pointer}
+/* 수정된 부분: 모바일에서 줄바꿈 허용 및 줄 간격 추가 */
+.upload-label{font-size:12.5px;color:#cbd5e1;font-weight:600;white-space:normal;line-height:1.4;cursor:pointer}
 .upload-sub{font-size:10.5px;color:#64748b;margin-top:2px}
 .file-name{font-size:11.5px;font-weight:600;color:#10b981;margin-top:4px;word-break:break-all}
+/* 수정된 부분: 버튼 영역이 찌그러지지 않도록 flex-shrink: 0 추가 */
 .upload-btn-label{
   padding:6px 12px;
   border:1px solid #3b82f6;
@@ -135,6 +135,7 @@ body{
   font-weight:600;
   white-space:nowrap;
   cursor:pointer;
+  flex-shrink: 0;
 }
 .upload-btn-label:hover{
   background:#3b82f6;
@@ -343,7 +344,6 @@ body{
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-/* Offline Downloads Panel style */
 .offline-row-links {
   display: flex;
   flex-wrap: wrap;
@@ -763,7 +763,6 @@ function loadFile(file){
 }
 
 function checkKeywordMatch(text, kw) {
-  // ── [Intelligent Word Normalization Filter] ──
   const normalizedText = text.replace(/[^A-Za-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
   const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   
@@ -780,14 +779,12 @@ function checkKeywordMatch(text, kw) {
   return re.test(normalizedText);
 }
 
-// ── [Full Range Dynamic Offset Multi-Scanner Core] ──
 function detectPageOffset(rawText) {
   const testKeywords = ["NOTAM", "PACKAGE", "PLAN", "FLIGHT", "KOREAN", "RELEASE", "WEATHER", "AIR", "ROUTE", "ALTN", "INFO"];
   
   let bestOffset = 0;
   let bestMatches = 0;
   
-  // Sweep through -120 to +120 offsets to detect specific encryption shift maps
   const offsetsToTest = [29, -29, 32, -32, 0];
   for (let i = -120; i <= 120; i++) {
     if (!offsetsToTest.includes(i)) offsetsToTest.push(i);
@@ -825,8 +822,6 @@ function decodeStr(str, offset) {
   return decoded;
 }
 
-// ── [Smart Overlapping Layer Isolation and Cleanser] ──
-// Filters raw and shift-obfuscated duplicates in real-time
 function cleanAndDecodeItem(str, offset) {
   if (!offset || !str) return str;
   
@@ -840,8 +835,6 @@ function cleanAndDecodeItem(str, offset) {
   return str;
 }
 
-// ── [Consolidated Token Deduplicator] ──
-// Eliminates consecutive duplicates from overlapping FPL lines
 function deduplicateWords(text) {
   if (!text) return text;
   const words = text.split(/\s+/);
@@ -868,8 +861,8 @@ async function extractReleaseAirportsByRule2(pdfJsDoc) {
       const releaseRegex = /I\s+HEREBY\s+RELEASE\s+(THE\s+)?FLIGHT\s+[A-Z0-9]+\/\d{2}[A-Z]{3},\s*([A-Z]{3})\/([A-Z]{3})/i;
       const m = releaseRegex.exec(decodedText);
       if (m) {
-        airports.push(m[2].toUpperCase().trim()); // Origin
-        airports.push(m[3].toUpperCase().trim()); // Destination
+        airports.push(m[2].toUpperCase().trim());
+        airports.push(m[3].toUpperCase().trim());
         break; 
       }
     }
@@ -886,8 +879,8 @@ async function extractReleaseAirportsByRule2(pdfJsDoc) {
           const fallbackRegex = /FLIGHT\s+RELEASE\s+[A-Z0-9]+\s+([A-Z]{3,4})\s*[\/-]\s*([A-Z]{3,4})/i;
           const m = fallbackRegex.exec(decodedText);
           if (m) {
-            airports.push(m[1].toUpperCase().trim().substring(0,3)); // Origin
-            airports.push(m[2].toUpperCase().trim().substring(0,3)); // Destination
+            airports.push(m[1].toUpperCase().trim().substring(0,3));
+            airports.push(m[2].toUpperCase().trim().substring(0,3));
             break;
           }
         }
@@ -984,7 +977,7 @@ async function runHL(){
     const libPages=pdfLibDoc.getPages();
     const stdFont = await pdfLibDoc.embedFont(PDFLib.StandardFonts.Helvetica);
 
-    detectedAirports = await extractReleaseAirports ByRule2(pdfJsDoc);
+    detectedAirports = await extractReleaseAirportsByRule2(pdfJsDoc);
 
     if (detectedAirports.length === 2) {
       const routeText = `${detectedAirports[0]} ➔ ${detectedAirports[1]}`;
@@ -995,7 +988,6 @@ async function runHL(){
 
     await extractMetadata(pdfJsDoc);
 
-    // [복원 완료] PDF 자동 아웃라인 북마크 생성을 위한 식별 패턴 배열
     const BOOKMARK_PATTERNS=[
       {label:'CFP PLAN',pattern:/CFP\s+PLAN/i},
       {label:'COPY OF ATS',pattern:/COPY\s+OF\s+ATS/i},
@@ -1065,7 +1057,6 @@ async function runHL(){
       const isPackage3Page = (pkg3StartIdx !== -1 && pi >= pkg3StartIdx);
       const isDispatchPage = (dispatchReleaseIdx !== -1 && pi >= dispatchReleaseIdx && pi < dispatchEndIdx);
 
-      // Search layer repair: Re-inject original English text invisibly over the corrupted layers
       if (pageOffset !== 0) {
         for (const item of content.items) {
           const originalStr = cleanAndDecodeItem(item.str, pageOffset);
@@ -1311,7 +1302,6 @@ async function runHL(){
       }
     }
 
-    // ── [복원 완료] PDF Outline 구조 생성 및 Catalog UseOutlines 바인딩 ──
     const ctx=pdfLibDoc.context;
     const outlineItems=[];
     for(const bm of BOOKMARK_PATTERNS){

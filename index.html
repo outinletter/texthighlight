@@ -17,11 +17,22 @@ body{
 .header{
   background:linear-gradient(135deg,#111827,#0f172a);
   border-bottom:1px solid #1e293b;
-  padding:20px 16px;
-  text-align:center;
+  padding:24px 16px; /* 상하 패딩을 늘려 상단 경계선과 QR 코드 간의 충분한 여백 확보 */
+  position: relative;
+}
+.header-container {
+  max-width: 640px;
+  margin: 0 auto;
+  position: relative; /* QR 코드의 절대 위치(absolute) 배치를 위해 relative 설정 */
+  width: 100%;
+}
+.header-text {
+  text-align: center; /* 제목과 설명 텍스트를 정확하게 가운데 정렬 */
+  padding-left: 96px;  /* 우측 QR 코드 영역과의 시각적 대칭을 위한 왼쪽 여백 */
+  padding-right: 96px; /* 우측 QR 코드 영역 침범 방지용 오른쪽 여백 */
 }
 .header h1{
-  font-size:24px;
+  font-size:22px;
   font-weight:800;
   letter-spacing:1px;
   color:#fff;
@@ -30,9 +41,34 @@ body{
   color:#3b82f6;
 }
 .header p{
-  font-size:11px;
+  font-size:10.5px;
   color:#94a3b8;
   margin-top:4px;
+}
+.header-qr {
+  position: absolute; /* 헤더 우측에 완벽 고정 배치 */
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%); /* 세로 중앙 정렬 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.header-qr canvas {
+  background: #fff;
+  border-radius: 4px;
+}
+.header-qr span {
+  font-size: 8px;
+  font-weight: 700;
+  color: #3b82f6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 .body{
   flex:1;
@@ -308,6 +344,7 @@ body{
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+/* Row-style Inline Downloads Panel */
 .offline-row-links {
   display: flex;
   flex-wrap: wrap;
@@ -350,13 +387,23 @@ body{
 <body>
 
 <div class="header">
-  <h1>TEXT <span>HIGHLIGHTER</span></h1>
-  <p>Offline Ready Smart NOTAM Highlighter & CFP Bookmark Auto Generator</p>
+  <div class="header-container">
+    <div class="header-text">
+      <h1>TEXT <span>HIGHLIGHTER</span></h1>
+      <p>Offline Ready Smart NOTAM Highlighter & CFP Bookmark Auto Generator</p>
+    </div>
+    <!-- Enlarge Self-Drawing QR Code Area for Easy Share (84x84) -->
+    <div class="header-qr" title="Share via QR Code">
+      <canvas id="qrCanvas" width="84" height="84"></canvas>
+      <span>Share App</span>
+    </div>
+  </div>
 </div>
 
 <div class="body">
   <div class="app">
     
+    <!-- Clean Minimalist Instruction Panel -->
     <div class="card">
       <div class="card-title">🔌 EFB In-flight Offline Operation Guide</div>
       <div class="offline-instruction" style="margin-bottom: 0;">
@@ -364,6 +411,7 @@ body{
       </div>
     </div>
 
+    <!-- Section 1: PDF Upload -->
     <div class="card">
       <div class="card-title">📄 1. PDF FLIGHT PACKAGE</div>
       <div class="upload-area" id="uploadArea" onclick="document.getElementById('fi').click()">
@@ -378,6 +426,7 @@ body{
       </div>
     </div>
 
+    <!-- 2. Highlight Configuration -->
     <div class="card">
       <div class="card-title">⚙️ 2. HIGHLIGHT SETTINGS</div>
       <div class="hl-row" style="justify-content: space-between;">
@@ -396,6 +445,7 @@ body{
         </div>
       </div>
       
+      <!-- Highlight theme selector -->
       <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #1e293b; display: flex; align-items: center; justify-content: space-between;">
         <span style="font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px;">Highlight Marker Color</span>
         <div style="display: flex; gap: 8px;">
@@ -407,6 +457,7 @@ body{
       </div>
     </div>
 
+    <!-- Section 3: Add custom word tags -->
     <div class="card">
       <div class="card-title">✏️ 3. ADD CUSTOM WORD TAGS</div>
       <div class="custom-add-wrap">
@@ -418,6 +469,7 @@ body{
       <div class="tag-list" id="tagList"></div>
     </div>
 
+    <!-- Section 4: Engine Runner -->
     <div class="card">
       <div class="card-title">
         🚀 4. RUN SYSTEM ENGINE
@@ -430,6 +482,7 @@ body{
       </div>
     </div>
 
+    <!-- Download Control Panel -->
     <div class="card" id="previewCard" style="display:none">
       <div class="card-title">💾 5. SAVE OPTIMIZED DOCUMENT</div>
       <p style="font-size:11px;color:#94a3b8;margin-bottom:12px">
@@ -443,6 +496,7 @@ body{
   </div>
 </div>
 
+<!-- Integrated Footer & Unified Downloads Area -->
 <footer style="text-align:center;padding:24px 16px 32px;color:#475569;font-size:11.5px;border-top:1px solid #1e293b;background:#070b13;display:flex;flex-direction:column;align-items:center;gap:16px;">
   
   <div style="max-width:640px; width:100%; display:flex; flex-direction:column; gap:10px; align-items:center;">
@@ -471,6 +525,202 @@ body{
 <script>
 let resolvedWorkerUrl = '';
 let libsReady = false;
+
+// ── [오프라인 최적화 초경량 QR 코드 인코더 렌더링 라이브러리] ──
+const qrSimple = (function(){
+  function QR(text, typeNumber, errorCorrectionLevel) {
+    this.typeNumber = typeNumber || 4;
+    this.errorCorrectionLevel = errorCorrectionLevel || 'M';
+    this.modules = null;
+    this.moduleCount = 0;
+    this.dataCache = null;
+    this.dataList = [];
+    this.addData(text);
+    this.make();
+  }
+  QR.prototype = {
+    addData: function(data) { this.dataList.push({data: data}); },
+    isDark: function(row, col) { return this.modules[row][col]; },
+    getModuleCount: function() { return this.moduleCount; },
+    make: function() { this.makeImpl(false, this.getBestMaskPattern()); },
+    makeImpl: function(test, maskPattern) {
+      this.moduleCount = this.typeNumber * 4 + 17;
+      this.modules = new Array(this.moduleCount);
+      for (var row = 0; row < this.moduleCount; row++) {
+        this.modules[row] = new Array(this.moduleCount);
+        for (var col = 0; col < this.moduleCount; col++) { this.modules[row][col] = null; }
+      }
+      this.setupPositionProbePattern(0, 0);
+      this.setupPositionProbePattern(this.moduleCount - 7, 0);
+      this.setupPositionProbePattern(0, this.moduleCount - 7);
+      this.setupPositionAdjustPattern();
+      this.setupTimingPattern();
+      this.setupTypeInfo(test, maskPattern);
+      if (this.typeNumber >= 7) { this.setupTypeNumber(test); }
+      if (this.dataCache == null) { this.dataCache = QR.createData(this.typeNumber, this.errorCorrectionLevel, this.dataList); }
+      this.mapData(this.dataCache, maskPattern);
+    },
+    setupPositionProbePattern: function(row, col) {
+      for (var r = -1; r <= 7; r++) {
+        if (row + r <= -1 || this.moduleCount <= row + r) continue;
+        for (var c = -1; c <= 7; c++) {
+          if (col + c <= -1 || this.moduleCount <= col + c) continue;
+          if ( (0 <= r && r <= 6 && (c == 0 || c == 6) ) || (0 <= c && c <= 6 && (r == 0 || r == 6) ) || (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+            this.modules[row + r][col + c] = true;
+          } else { this.modules[row + r][col + c] = false; }
+        }
+      }
+    },
+    getBestMaskPattern: function() { return 0; },
+    setupTimingPattern: function() {
+      for (var r = 8; r < this.moduleCount - 8; r++) {
+        if (this.modules[r][6] != null) continue;
+        this.modules[r][6] = (r % 2 == 0);
+      }
+      for (var c = 8; c < this.moduleCount - 8; c++) {
+        if (this.modules[6][c] != null) continue;
+        this.modules[6][c] = (c % 2 == 0);
+      }
+    },
+    setupPositionAdjustPattern: function() {
+      var pos = QR.getPatternPosition(this.typeNumber);
+      for (var i = 0; i < pos.length; i++) {
+        for (var j = 0; j < pos.length; j++) {
+          var row = pos[i], col = pos[j];
+          if (this.modules[row][col] != null) continue;
+          for (var r = -2; r <= 2; r++) {
+            for (var c = -2; c <= 2; c++) {
+              if (r == -2 || r == 2 || c == -2 || c == 2 || (r == 0 && c == 0) ) {
+                this.modules[row + r][col + c] = true;
+              } else { this.modules[row + r][col + c] = false; }
+            }
+          }
+        }
+      }
+    },
+    setupTypeInfo: function(test, maskPattern) {
+      var data = (QR.getBCHTypeInfo(this.errorCorrectionLevel) << 10) | maskPattern;
+      var bits = QR.getBCHDigit(data);
+      for (var i = 0; i < 15; i++) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        if (i < 6) { this.modules[i][8] = mod; }
+        else if (i < 8) { this.modules[i + 1][8] = mod; }
+        else { this.modules[this.moduleCount - 15 + i][8] = mod; }
+      }
+      for (var i = 0; i < 15; i++) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        if (i < 8) { this.modules[8][this.moduleCount - i - 1] = mod; }
+        else if (i < 9) { this.modules[8][15 - i - 1 + 1] = mod; }
+        else { this.modules[8][15 - i - 1] = mod; }
+      }
+      this.modules[this.moduleCount - 8][8] = (!test);
+    },
+    setupTypeNumber: function(test) {},
+    mapData: function(data, maskPattern) {
+      var inc = -1, row = this.moduleCount - 1, bitIndex = 7, byteIndex = 0;
+      for (var col = this.moduleCount - 1; col > 0; col -= 2) {
+        if (col == 6) col--;
+        while (true) {
+          for (var c = 0; c < 2; c++) {
+            if (this.modules[row][col - c] == null) {
+              var dark = false;
+              if (byteIndex < data.length) { dark = ( ( (data[byteIndex] >>> bitIndex) & 1) == 1); }
+              var mask = ( (row + (col - c) ) % 2 == 0); // Simplest mask
+              if (mask) { dark = !dark; }
+              this.modules[row][col - c] = dark;
+              bitIndex--;
+              if (bitIndex == -1) { byteIndex++; bitIndex = 7; }
+            }
+          }
+          row += inc;
+          if (row < 0 || this.moduleCount <= row) { row -= inc; inc = -inc; break; }
+        }
+      }
+    }
+  };
+  QR.getPatternPosition = function(typeNumber) {
+    if (typeNumber == 1) return [];
+    var offset = Math.floor(typeNumber * 4 / (typeNumber - 1) ) * 2;
+    var list = [6];
+    for (var i = typeNumber - 1; i > 0; i--) { list.push(typeNumber * 4 + 17 - 6 - (i - 1) * offset); }
+    return list.sort(function(a,b){return a-b;});
+  };
+  QR.getBCHTypeInfo = function(level) {
+    switch(level) { case 'L': return 1; case 'M': return 0; case 'Q': return 3; case 'H': return 2; }
+    return 0;
+  };
+  QR.getBCHDigit = function(data) {
+    var bch = data << 10;
+    while (QR.getBCHDigit.num(bch) >= 11) { bch ^= (1337 << (QR.getBCHDigit.num(bch) - 11) ); }
+    return (data << 10) | bch;
+  };
+  QR.getBCHDigit.num = function(data) {
+    var num = 0;
+    while (data >>>= 1) { num++; }
+    return num;
+  };
+  QR.createData = function(typeNumber, errorCorrectionLevel, dataList) {
+    var buffer = [];
+    for (var i = 0; i < dataList.length; i++) {
+      var d = dataList[i].data;
+      for (var j = 0; j < d.length; j++) { buffer.push(d.charCodeAt(j)); }
+    }
+    var bytes = [64, buffer.length]; // mode 8-bit, len
+    bytes = bytes.concat(buffer);
+    var totalBytes = 32; // Standard size limit boundary for Type 4-M QR
+    while(bytes.length < totalBytes) { bytes.push(236); if(bytes.length < totalBytes) bytes.push(17); }
+    return bytes;
+  };
+  return QR;
+})();
+
+// 페이지 로드 시 QR 코드 캔버스 드로잉 트리거
+window.onload = function() {
+  drawAppQR();
+};
+
+function drawAppQR() {
+  const canvas = document.getElementById('qrCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  // ── [요청 패치 사양] 단순 임시 도메인이 아닌 고유 공식 깃허브 배포 사이트 주소로 고정합니다. ──
+  const staticTargetUrl = "https://outinletter.github.io/texthighlighter/";
+  
+  try {
+    const qr = new qrSimple(staticTargetUrl, 4, 'M');
+    const count = qr.getModuleCount();
+    const size = canvas.width;
+    
+    // ── [여백의 안정화] 순수 화이트 컬러로 캔버스 전체 배경을 1차 채우기하여 완벽한 Quiet Zone(여백) 확보 ──
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, size, size);
+    
+    // 외곽에 6px의 흰색 테두리 여백을 안전하게 배정하여 드로잉 해상도를 보정합니다.
+    const margin = 6;
+    const drawSize = size - (margin * 2);
+    const tile = drawSize / count;
+    
+    ctx.fillStyle = '#0F172A'; // 고대비 딥슬레이트 슬라이싱 드로잉
+    for (let r = 0; r < count; r++) {
+      for (let c = 0; c < count; c++) {
+        if (qr.isDark(r, c)) {
+          ctx.fillRect(
+            Math.round(margin + (c * tile)), 
+            Math.round(margin + (r * tile)), 
+            Math.ceil(tile), 
+            Math.ceil(tile)
+          );
+        }
+      }
+    }
+  } catch(e) {
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillRect(10, 10, 64, 64);
+  }
+}
 
 async function forceDownload(event, url, filename) {
   event.preventDefault();
@@ -652,13 +902,6 @@ function updBadge(){
   el.className='badge-count'+(t>0&&t>=PRESETS.length+custom.length?' all':'');
 }
 
-function toggleDD(){
-  const m=document.getElementById('dropMenu'),b=document.getElementById('dropBtn');
-  const o=m.style.display==='none';
-  m.style.display=o?'block':'none';
-  b.classList.toggle('open',o);
-}
-
 document.addEventListener('click',e=>{
   if(!e.target.closest('.dropdown-wrap')){
     document.getElementById('dropMenu').style.display='none';
@@ -737,6 +980,7 @@ function checkKeywordMatch(text, kw) {
   return re.test(text);
 }
 
+// ── [지능형 전범위 오프셋 검색 디코더 패치 적용] ──
 function detectPageOffset(rawText) {
   const testKeywords = ["NOTAM", "PACKAGE", "PLAN", "FLIGHT", "KOREAN", "RELEASE", "WEATHER", "AIR", "ROUTE", "ALTN", "INFO"];
   let normalMatchCount = 0;
@@ -750,7 +994,7 @@ function detectPageOffset(rawText) {
   let bestOffset = 0;
   let bestMatches = 0;
   
-  const offsetsToTest = [29, -29, 0];
+  const offsetsToTest = [29, -29, 32, -32, 0];
   for (let i = -120; i <= 120; i++) {
     if (!offsetsToTest.includes(i)) offsetsToTest.push(i);
   }
@@ -1218,28 +1462,6 @@ async function runHL(){
       }
     }
 
-    const ctx=pdfLibDoc.context;
-    const outlineItems=[];
-    for(const bm of BOOKMARK_PATTERNS){
-      const pi=bmPages[bm.label];if(pi===undefined)continue;
-      const pageRef=pdfLibDoc.getPage(pi).ref;
-      const dest=ctx.obj([pageRef,PDFLib.PDFName.of('Fit')]);
-      const itemDict=ctx.obj({Title:PDFLib.PDFString.of(bm.label),Dest:dest});
-      outlineItems.push(ctx.register(itemDict));
-    }
-    if(outlineItems.length>0){
-      for(let i=0;i<outlineItems.length;i++){
-        const d=ctx.lookup(outlineItems[i]);
-        if(i>0)d.set(PDFLib.PDFName.of('Prev'),outlineItems[i-1]);
-        if(i<outlineItems.length-1)d.set(PDFLib.PDFName.of('Next'),outlineItems[i+1]);
-      }
-      const outlineDict=ctx.obj({Type:PDFLib.PDFName.of('Outlines'),First:outlineItems[0],Last:outlineItems[outlineItems.length-1],Count:PDFLib.PDFNumber.of(outlineItems.length)});
-      const outlineRef=ctx.register(outlineDict);
-      for(const ref of outlineItems)ctx.lookup(ref).set(PDFLib.PDFName.of('Parent'),outlineRef);
-      pdfLibDoc.catalog.set(PDFLib.PDFName.of('Outlines'),outlineRef);
-      pdfLibDoc.catalog.set(PDFLib.PDFName.of('PageMode'),PDFLib.PDFName.of('UseOutlines'));
-    }
-
     const cfpPageIdx=bmPages['CFP PLAN'];
     let coaPageIdx=bmPages['COPY OF ATS'];
     
@@ -1288,7 +1510,6 @@ async function runHL(){
       if (detectedAirports.length === 2) {
         const depCode = detectedAirports[0];
         const arrCode = detectedAirports[1];
-        
         const dynamicRouteRegex = new RegExp(`(${depCode}\\s+[A-Z0-9]+\\s+[A-Z0-9\\s\\.]*?\\.\\.\\s*${arrCode}\\b)`, 'i');
         const rMatch = cfpFullTextWithNewlines.match(dynamicRouteRegex);
         if (rMatch) {
@@ -1302,7 +1523,7 @@ async function runHL(){
         if (fbMatch) {
           extractedRoute = fbMatch[1].trim();
         } else {
-          const genericRouteRegex = /([A-Z]{4}\s+[A-Z0-9]+\s+[A-Z0-9\s\.]*?\.\.\s*[A-Z]{4}\b)/i;
+          const genericRouteRegex = /([A-Z]{4}\s+[A-Z0-9]+\s+[A-Z0-9\\s\\.]*?\\.\\.\\s*[A-Z]{4}\\b)/i;
           const genMatch = cfpFullTextWithNewlines.match(genericRouteRegex);
           if (genMatch) {
             extractedRoute = genMatch[1].trim();

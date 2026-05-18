@@ -17,7 +17,7 @@ body{
 .header{
   background:linear-gradient(135deg,#111827,#0f172a);
   border-bottom:1px solid #1e293b;
-  padding:24px 16px;
+  padding:24px 16px 12px; /* Bottom padding reduced to place video closer */
   position: relative;
 }
 .header-container {
@@ -27,7 +27,7 @@ body{
   width: 100%;
 }
 .header-text {
-  text-align: center;
+  text-align: center; /* Centers title and description elements perfectly */
 }
 .header h1{
   font-size:22px;
@@ -43,6 +43,28 @@ body{
   color:#94a3b8;
   margin-top:4px;
 }
+
+/* New CSS for center-aligned, smaller video container */
+.video-banner {
+  max-width: 640px;
+  width: 70%; /* "slightly smaller" relative to main container */
+  height: 60px; /* Slim section height */
+  margin: 12px auto 0; /* Centered, top margin, no bottom margin */
+  border-radius: 8px; /* Rounded corners */
+  overflow: hidden; /* Contains video inside corners */
+  background: rgba(16, 24, 40, 0.3); /* Dark, subtle background */
+  border: 1px solid rgba(59, 130, 246, 0.2); /* Matching highlight colors, subtle border */
+}
+
+/* New CSS for full-width, muted video inside the banner */
+.video-banner video {
+  width: 100%; /* Takes full container width */
+  height: 100%; /* Takes full container height */
+  object-fit: cover; /* Maintains aspect ratio, crops if needed, fills area */
+  display: block; /* Removes bottom spacing */
+  opacity: 0.8; /* Slight fade effect */
+}
+
 .body{
   flex:1;
   padding:16px 12px 32px;
@@ -55,29 +77,16 @@ body{
   gap:16px;
   width:100%;
 }
-/* 추가된 동영상 배너 스타일 */
-.video-banner {
-  width: 100%;
-  height: 70px; /* 얇은 섹션 두께 설정 */
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid #1e293b;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  background: #000;
-  margin-bottom: 2px;
-}
-.video-banner video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* 영역에 꽉 차게 크롭 */
-  opacity: 0.85; /* 본문과 어우러지도록 약간 투명도 부여 */
-}
 .card{
   background:#111827;
   border-radius:12px;
   border:1px solid #1e293b;
   padding:16px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px; /* Added consistent margin below each card */
+}
+.card:last-child {
+  margin-bottom: 0; /* Remove margin from last card */
 }
 .card-title{
   font-size:11px;
@@ -382,16 +391,16 @@ body{
       <h1>TEXT <span>HIGHLIGHTER</span></h1>
       <p>Offline Ready Smart NOTAM Highlighter & CFP Bookmark Auto Generator</p>
     </div>
+    
+    <div class="video-banner">
+      <video src="mp_.mp4" autoplay loop muted playsinline></video>
+    </div>
   </div>
 </div>
 
 <div class="body">
   <div class="app">
     
-    <div class="video-banner">
-      <video src="mp_.mp4" autoplay loop muted playsinline></video>
-    </div>
-
     <div class="card">
       <div class="card-title">🔌 EFB In-flight Offline Operation Guide</div>
       <div class="offline-instruction" style="margin-bottom: 0;">
@@ -975,7 +984,7 @@ async function runHL(){
     const libPages=pdfLibDoc.getPages();
     const stdFont = await pdfLibDoc.embedFont(PDFLib.StandardFonts.Helvetica);
 
-    detectedAirports = await extractReleaseAirportsByRule2(pdfJsDoc);
+    detectedAirports = await extractReleaseAirports ByRule2(pdfJsDoc);
 
     if (detectedAirports.length === 2) {
       const routeText = `${detectedAirports[0]} ➔ ${detectedAirports[1]}`;

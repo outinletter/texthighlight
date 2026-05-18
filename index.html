@@ -734,25 +734,25 @@ function loadFile(file){
 }
 
 function checkKeywordMatch(text, kw) {
-  let re;
+  // ── [지능형 자간 정규화 필터 적용] ──
+  // 자간 격차(Kerning) 오류로 알파벳 사이에 미세 공백이나 특수 부호 노이즈가 포함되어 있어도, 안전하게 공백 정렬 후 매칭을 시도합니다.
+  const normalizedText = text.replace(/[^A-Za-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
   const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  
+  let re;
   try {
-    if (kw.toLowerCase() === 'restrict') {
-      re = new RegExp(`(?<![\\w/A-Za-z])${escaped}[A-Za-z]*(?![\\w/A-Za-z])`, 'i');
-    } else {
-      re = new RegExp(`(?<![\\w/A-Za-z])${escaped}(?![\\w/A-Za-z])`, 'i');
-    }
-  } catch (e) {
     if (kw.toLowerCase() === 'restrict') {
       re = new RegExp(`\\b${escaped}[A-Za-z]*\\b`, 'i');
     } else {
       re = new RegExp(`\\b${escaped}\\b`, 'i');
     }
+  } catch (e) {
+    re = new RegExp(escaped, 'i');
   }
-  return re.test(text);
+  return re.test(normalizedText);
 }
 
-// ── [지능형 전범위 오프셋 검색 디코더 패치 적용] ──
+// ── [전범위 오프셋 탐지 및 글자 완성도 검증 스캐너] ──
 function detectPageOffset(rawText) {
   const testKeywords = ["NOTAM", "PACKAGE", "PLAN", "FLIGHT", "KOREAN", "RELEASE", "WEATHER", "AIR", "ROUTE", "ALTN", "INFO"];
   let normalMatchCount = 0;
@@ -760,12 +760,13 @@ function detectPageOffset(rawText) {
     if (new RegExp(kw, 'i').test(rawText)) normalMatchCount++;
   }
   if (normalMatchCount >= 2) {
-    return 0; 
+    return 0; // 보정이 필요 없는 순수 정상 텍스트
   }
   
   let bestOffset = 0;
   let bestMatches = 0;
   
+  // 아시아 항공사 PDF 전송 보안용 가변 오프셋 대역 전수 스캔 연산 (-120 ~ +120 전구간)
   const offsetsToTest = [29, -29, 32, -32, 0];
   for (let i = -120; i <= 120; i++) {
     if (!offsetsToTest.includes(i)) offsetsToTest.push(i);
@@ -774,20 +775,22 @@ function detectPageOffset(rawText) {
   for (const offset of offsetsToTest) {
     if (offset === 0) continue;
     let decodedSample = "";
-    const sampleLen = Math.min(rawText.length, 1200);
+    const sampleLen = Math.min(rawText.length, 1500); // 정확도 향상을 위해 샘플링 검출 대역 확장
     for (let j = 0; j < sampleLen; j++) {
       decodedSample += String.fromCharCode(rawText.charCodeAt(j) + offset);
     }
     
+    // 특수문자 전처리 정규화 후 매칭 정밀 확인
+    const cleanSample = decodedSample.replace(/[^A-Za-z0-9\s]/g, ' ').toUpperCase();
     let matchCount = 0;
     for (const kw of testKeywords) {
-      if (decodedSample.toUpperCase().includes(kw)) matchCount++;
+      if (cleanSample.includes(kw)) matchCount++;
     }
     
     if (matchCount > bestMatches) {
       bestMatches = matchCount;
       bestOffset = offset;
-      if (bestMatches >= 3) break; 
+      if (bestMatches >= 3) break; // 조기 정합 통과 조건
     }
   }
   
@@ -1160,12 +1163,15 @@ async function runHL(){
           for(const kw of keywords){
             let re;
             try {
-              re = new RegExp(`(?<![\\w/A-Za-z])${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}(?![\\w/A-Za-z])`,'gi');
-            } catch(e) {
+              // ── [경계 보정 정밀 정규화 패턴] ──
               re = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`,'gi');
+            } catch(e) {
+              re = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
             }
+            
+            const cleanSourceText = s.replace(/[^A-Za-z0-9]/g, ' ');
             let m;
-            while((m=re.exec(s))!==null){
+            while((m=re.exec(cleanSourceText))!==null){
               const rx=(itemX+m.index*charW)*sx;
               const ry=itemY*sy;
               const rw=kw.length*charW*sx;
@@ -1230,224 +1236,6 @@ async function runHL(){
               }
             }
           }
-        }
-      }
-    }
-
-    const cfpPageIdx=bmPages['CFP PLAN'];
-    let coaPageIdx=bmPages['COPY OF ATS'];
-    
-    let resolvedCoaPageIdx = coaPageIdx !== undefined ? coaPageIdx : -1;
-    let foundCoaPageOffset = 0;
-    
-    for (let pi = 0; pi < numPages; pi++) {
-      const scanJsPage = await pdfJsDoc.getPage(pi + 1);
-      const scanTextContent = await scanJsPage.getTextContent();
-      const rawScanText = scanTextContent.items.map(it => it.str).join(' ');
-      const scanOffset = detectPageOffset(rawScanText);
-      const decodedScanText = scanTextContent.items.map(it => decodeStr(it.str, scanOffset)).join(' ');
-      
-      if (decodedScanText.toUpperCase().includes("COPY OF ATS FPL, SUBMITTED AT") || decodedScanText.toUpperCase().includes("COPY OF ATS FPL")) {
-        resolvedCoaPageIdx = pi;
-        foundCoaPageOffset = scanOffset;
-        break;
-      }
-    }
-
-    if(cfpPageIdx!==undefined && resolvedCoaPageIdx!==-1){
-      const cfpJsPage=await pdfJsDoc.getPage(cfpPageIdx+1);
-      const cfpContent=await cfpJsPage.getTextContent();
-      
-      const rawCfpText = cfpContent.items.map(it => it.str).join(' ');
-      const cfpOffset = detectPageOffset(rawCfpText);
-
-      const cfpItems=cfpContent.items.slice().sort((a,b)=>{
-        const ay=a.transform[5],by2=b.transform[5];
-        if(Math.abs(ay-by2)>2)return by2-ay;
-        return a.transform[4]-b.transform[4];
-      });
-      
-      let cfpFullTextWithNewlines = "";
-      let lastY = null;
-      for (const item of cfpItems) {
-        const decodedStr = decodeStr(item.str, cfpOffset);
-        if (lastY !== null && Math.abs(item.transform[5] - lastY) > 4.5) {
-          cfpFullTextWithNewlines += "\n";
-        }
-        cfpFullTextWithNewlines += decodedStr + " ";
-        lastY = item.transform[5];
-      }
-
-      let extractedRoute = "";
-      if (detectedAirports.length === 2) {
-        const depCode = detectedAirports[0];
-        const arrCode = detectedAirports[1];
-        const dynamicRouteRegex = new RegExp(`(${depCode}\\s+[A-Z0-9]+\\s+[A-Z0-9\\s\\.]*?\\.\\.\\s*${arrCode}\\b)`, 'i');
-        const rMatch = cfpFullTextWithNewlines.match(dynamicRouteRegex);
-        if (rMatch) {
-          extractedRoute = rMatch[1].trim();
-        }
-      }
-
-      if (!extractedRoute) {
-        const fallbackRouteRegex = /(KSEA\s+[A-Z0-9]+\s+[A-Z0-9\s\.]*?\.\.\s*RKSI\b)/i;
-        const fbMatch = cfpFullTextWithNewlines.match(fallbackRouteRegex);
-        if (fbMatch) {
-          extractedRoute = fbMatch[1].trim();
-        } else {
-          const genericRouteRegex = /([A-Z]{4}\s+[A-Z0-9]+\s+[A-Z0-9\\s\\.]*?\\.\\.\\s*[A-Z]{4}\\b)/i;
-          const genMatch = cfpFullTextWithNewlines.match(genericRouteRegex);
-          if (genMatch) {
-            extractedRoute = genMatch[1].trim();
-          }
-        }
-      }
-
-      if(extractedRoute) {
-        const coaJsPage=await pdfJsDoc.getPage(resolvedCoaPageIdx+1);
-        const coaContent=await coaJsPage.getTextContent();
-        const coaLibPage = libPages[resolvedCoaPageIdx];
-        const {width:coaW,height:coaH}=coaLibPage.getSize();
-        const coaVp=coaJsPage.getViewport({scale:1.0});
-        const coaSy=coaH/coaVp.height;
-
-        const fontSize=9,lineH=fontSize*1.4,padding=8;
-        const pageMargin = 30; 
-        const maxWidth = coaW - (pageMargin * 2) - (padding * 2); 
-        
-        const charsPerLine=Math.floor(maxWidth / (fontSize * 0.54));
-        
-        const wrapRouteText = (text, maxChars) => {
-          const sanitizedText = text.replace(/\r?\n/g, " ").replace(/\s+/g, " ").trim();
-          
-          const rawWords = sanitizedText.split(" ");
-          const tokens = [];
-          for (const word of rawWords) {
-            if (!word) continue;
-            const parts = word.split("..");
-            for (let i = 0; i < parts.length; i++) {
-              if (parts[i]) tokens.push(parts[i]);
-              if (i < parts.length - 1) tokens.push("..");
-            }
-            tokens.push(" "); 
-          }
-          if (tokens[tokens.length - 1] === " ") tokens.pop();
-
-          const lines = [];
-          let currentLine = "";
-          
-          for (let token of tokens) {
-            if (token === " ") {
-              if (currentLine.length > 0 && !currentLine.endsWith("..") && !currentLine.endsWith(" ")) {
-                currentLine += " ";
-              }
-              continue;
-            }
-            
-            if (token === "..") {
-              if (currentLine.endsWith(" ")) {
-                currentLine = currentLine.slice(0, -1);
-              }
-            }
-            
-            if (token.length > maxChars) {
-              if (currentLine.length > 0) {
-                lines.push(currentLine.trim());
-                currentLine = "";
-              }
-              
-              let tempWord = token;
-              while (tempWord.length > maxChars) {
-                lines.push(tempWord.substring(0, maxChars));
-                tempWord = tempWord.substring(maxChars);
-              }
-              currentLine = tempWord;
-              continue;
-            }
-            
-            if (currentLine.length + token.length > maxChars) {
-              if (currentLine.length > 0) {
-                lines.push(currentLine.trim());
-              }
-              currentLine = token;
-            } else {
-              currentLine += token;
-            }
-          }
-          
-          if (currentLine.trim().length > 0) {
-            lines.push(currentLine.trim());
-          }
-          
-          return lines.map(line => line.replace(/\s*\.\.\s*/g, '..'));
-        };
-
-        const originalRawLines = extractedRoute.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-        const lines = [];
-        for (const rawLine of originalRawLines) {
-          const processedWrapped = wrapRouteText(rawLine, charsPerLine);
-          lines.push(...processedWrapped);
-        }
-
-        const blockH=lines.length*lineH+padding*2;
-
-        let targetLineY = -1;
-        let targetLineMinY = -1; 
-        
-        const coaLinesMap = {};
-        for (const it of coaContent.items) {
-          if (!it.str) continue;
-          const y = Math.round(it.transform[5]);
-          if (!coaLinesMap[y]) coaLinesMap[y] = [];
-          coaLinesMap[y].push(it);
-        }
-
-        for (const yKey of Object.keys(coaLinesMap)) {
-          const sortedLineItems = coaLinesMap[yKey].sort((a, b) => a.transform[4] - b.transform[4]);
-          const lineText = sortedLineItems.map(it => decodeStr(it.str, foundCoaPageOffset)).join(' ');
-          if (lineText.toUpperCase().includes("COPY OF ATS FPL, SUBMITTED AT") || lineText.toUpperCase().includes("COPY OF ATS FPL")) {
-            targetLineY = parseFloat(yKey) * coaSy;
-            const lineItemHeights = sortedLineItems.map(it => Math.abs(it.transform[3]) || 10);
-            const maxLineHeight = Math.max(...lineItemHeights) * coaSy;
-            targetLineMinY = targetLineY - maxLineHeight; 
-            break;
-          }
-        }
-
-        let blockY;
-        if (targetLineMinY !== -1) {
-          blockY = targetLineMinY - blockH - 12;
-        } else {
-          let lowestY=coaH;
-          for(const it of coaContent.items){
-            const iy = it.transform[5] * coaSy;
-            if(iy < lowestY && iy > 20) lowestY = iy;
-          }
-          blockY = Math.max(lowestY - blockH - 18, 25);
-        }
-
-        coaLibPage.drawRectangle({
-          x: pageMargin,
-          y: blockY,
-          width: maxWidth + (padding * 2),
-          height: blockH,
-          color: PDFLib.rgb(0.92, 0.96, 1.0),
-          borderColor: PDFLib.rgb(0.36, 0.78, 1.0),
-          borderWidth: 1.5,
-          opacity: 0.96
-        });
-
-        const font = await pdfLibDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
-        for(let li=0;li<lines.length;li++){
-          const ty=blockY+blockH-padding-(li+1)*lineH+lineH*0.25;
-          coaLibPage.drawText(lines[li],{
-            x: pageMargin + padding,
-            y: ty,
-            size: fontSize,
-            font,
-            color: PDFLib.rgb(0.05, 0.12, 0.25),
-            maxWidth: maxWidth
-          });
         }
       }
     }

@@ -120,11 +120,9 @@ body{
 .upload-area input{display:none}
 .upload-icon{font-size:22px;flex-shrink:0}
 .upload-text{flex:1; min-width:0;}
-/* 수정된 부분: 모바일에서 줄바꿈 허용 및 줄 간격 추가 */
 .upload-label{font-size:12.5px;color:#cbd5e1;font-weight:600;white-space:normal;line-height:1.4;cursor:pointer}
 .upload-sub{font-size:10.5px;color:#64748b;margin-top:2px}
 .file-name{font-size:11.5px;font-weight:600;color:#10b981;margin-top:4px;word-break:break-all}
-/* 수정된 부분: 버튼 영역이 찌그러지지 않도록 flex-shrink: 0 추가 */
 .upload-btn-label{
   padding:6px 12px;
   border:1px solid #3b82f6;
@@ -393,6 +391,7 @@ body{
     </div>
     
     <div class="video-banner">
+      <!-- 동영상 플레이스홀더 -->
       <video src="mp_.mp4" autoplay loop muted playsinline></video>
     </div>
   </div>
@@ -779,23 +778,30 @@ function checkKeywordMatch(text, kw) {
   return re.test(normalizedText);
 }
 
+// 수정된 부분: 정상 텍스트(offset 0)일 때의 우선순위와 처리를 강화하여 멀쩡한 글자가 깨지는 현상을 방지합니다.
 function detectPageOffset(rawText) {
   const testKeywords = ["NOTAM", "PACKAGE", "PLAN", "FLIGHT", "KOREAN", "RELEASE", "WEATHER", "AIR", "ROUTE", "ALTN", "INFO"];
   
   let bestOffset = 0;
-  let bestMatches = 0;
+  let bestMatches = -1; // -1로 설정하여 매치가 0개라도 offset 0이 가장 먼저 우선권을 가지도록 함
   
-  const offsetsToTest = [29, -29, 32, -32, 0];
+  // 0을 맨 앞에 두어, 0일 때 가장 먼저 평가되게 합니다.
+  const offsetsToTest = [0, 29, -29, 32, -32];
   for (let i = -120; i <= 120; i++) {
     if (!offsetsToTest.includes(i)) offsetsToTest.push(i);
   }
   
   for (const offset of offsetsToTest) {
-    if (offset === 0) continue;
     let decodedSample = "";
     const sampleLen = Math.min(rawText.length, 1500);
-    for (let j = 0; j < sampleLen; j++) {
-      decodedSample += String.fromCharCode(rawText.charCodeAt(j) + offset);
+    
+    // 오프셋 0일 때는 변환 없이 앞부분 그대로 사용
+    if (offset === 0) {
+      decodedSample = rawText.substring(0, sampleLen);
+    } else {
+      for (let j = 0; j < sampleLen; j++) {
+        decodedSample += String.fromCharCode(rawText.charCodeAt(j) + offset);
+      }
     }
     
     const cleanSample = decodedSample.replace(/[^A-Za-z0-9\s]/g, ' ').toUpperCase();
@@ -1060,13 +1066,16 @@ async function runHL(){
       if (pageOffset !== 0) {
         for (const item of content.items) {
           const originalStr = cleanAndDecodeItem(item.str, pageOffset);
-          if (originalStr && originalStr.trim()) {
+          // 수정된 부분: 호환되지 않는 문자로 인해 렌더링 에러가 발생하는 것을 방지
+          const asciiStr = originalStr ? originalStr.replace(/[^\x00-\x7F]/g, '') : '';
+          
+          if (asciiStr && asciiStr.trim()) {
             const tx = item.transform;
             const rx = tx[4] * sx;
             const ry = tx[5] * sy;
             const itemH = Math.abs(tx[3]) || 10;
             try {
-              libPage.drawText(originalStr, {
+              libPage.drawText(asciiStr, {
                 x: rx,
                 y: ry,
                 size: itemH * sy,

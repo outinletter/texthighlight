@@ -27,7 +27,7 @@ body{
   width: 100%;
 }
 .header-text {
-  text-align: center; /* 제목과 설명 텍스트를 완벽하게 정중앙 정렬 */
+  text-align: center; /* Centers title and description elements perfectly */
 }
 .header h1{
   font-size:22px;
@@ -317,7 +317,7 @@ body{
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-/* Row-style Inline Downloads Panel */
+/* Offline Downloads Panel style */
 .offline-row-links {
   display: flex;
   flex-wrap: wrap;
@@ -371,7 +371,7 @@ body{
 <div class="body">
   <div class="app">
     
-    <!-- Clean Minimalist Instruction Panel -->
+    <!-- EFB Offline operation guidelines -->
     <div class="card">
       <div class="card-title">🔌 EFB In-flight Offline Operation Guide</div>
       <div class="offline-instruction" style="margin-bottom: 0;">
@@ -379,7 +379,7 @@ body{
       </div>
     </div>
 
-    <!-- Section 1: PDF Upload -->
+    <!-- Section 1: Flight Package PDF Upload -->
     <div class="card">
       <div class="card-title">📄 1. PDF FLIGHT PACKAGE</div>
       <div class="upload-area" id="uploadArea" onclick="document.getElementById('fi').click()">
@@ -394,7 +394,7 @@ body{
       </div>
     </div>
 
-    <!-- 2. Highlight Configuration -->
+    <!-- Section 2: Highlighter Configurations -->
     <div class="card">
       <div class="card-title">⚙️ 2. HIGHLIGHT SETTINGS</div>
       <div class="hl-row" style="justify-content: space-between;">
@@ -413,7 +413,7 @@ body{
         </div>
       </div>
       
-      <!-- Highlight theme selector -->
+      <!-- Highlight Marker Color Option Picker -->
       <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #1e293b; display: flex; align-items: center; justify-content: space-between;">
         <span style="font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px;">Highlight Marker Color</span>
         <div style="display: flex; gap: 8px;">
@@ -425,7 +425,7 @@ body{
       </div>
     </div>
 
-    <!-- Section 3: Add custom word tags -->
+    <!-- Section 3: Add Custom Words Section -->
     <div class="card">
       <div class="card-title">✏️ 3. ADD CUSTOM WORD TAGS</div>
       <div class="custom-add-wrap">
@@ -437,7 +437,7 @@ body{
       <div class="tag-list" id="tagList"></div>
     </div>
 
-    <!-- Section 4: Engine Runner -->
+    <!-- Section 4: Engine Runner Card -->
     <div class="card">
       <div class="card-title">
         🚀 4. RUN SYSTEM ENGINE
@@ -450,7 +450,7 @@ body{
       </div>
     </div>
 
-    <!-- Download Control Panel -->
+    <!-- Section 5: Save Optimized PDF Panel -->
     <div class="card" id="previewCard" style="display:none">
       <div class="card-title">💾 5. SAVE OPTIMIZED DOCUMENT</div>
       <p style="font-size:11px;color:#94a3b8;margin-bottom:12px">
@@ -674,6 +674,13 @@ function updBadge(){
   el.className='badge-count'+(t>0&&t>=PRESETS.length+custom.length?' all':'');
 }
 
+function toggleDD(){
+  const m=document.getElementById('dropMenu'),b=document.getElementById('dropBtn');
+  const o=m.style.display==='none';
+  m.style.display=o?'block':'none';
+  b.classList.toggle('open',o);
+}
+
 document.addEventListener('click',e=>{
   if(!e.target.closest('.dropdown-wrap')){
     document.getElementById('dropMenu').style.display='none';
@@ -734,7 +741,7 @@ function loadFile(file){
 }
 
 function checkKeywordMatch(text, kw) {
-  // ── [지능형 자간 정규화 필터 적용] ──
+  // ── [Intelligent Word Normalization Filter] ──
   const normalizedText = text.replace(/[^A-Za-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
   const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   
@@ -751,20 +758,14 @@ function checkKeywordMatch(text, kw) {
   return re.test(normalizedText);
 }
 
-// ── [전범위 오프셋 탐지 및 글자 완성도 검증 스캐너] ──
+// ── [Full Range Dynamic Offset Multi-Scanner Core] ──
 function detectPageOffset(rawText) {
   const testKeywords = ["NOTAM", "PACKAGE", "PLAN", "FLIGHT", "KOREAN", "RELEASE", "WEATHER", "AIR", "ROUTE", "ALTN", "INFO"];
-  let normalMatchCount = 0;
-  for (const kw of testKeywords) {
-    if (new RegExp(kw, 'i').test(rawText)) normalMatchCount++;
-  }
-  if (normalMatchCount >= 2) {
-    return 0; // 보정이 필요 없는 순수 정상 텍스트
-  }
   
   let bestOffset = 0;
   let bestMatches = 0;
   
+  // Sweep through -120 to +120 offsets to detect specific encryption shift maps
   const offsetsToTest = [29, -29, 32, -32, 0];
   for (let i = -120; i <= 120; i++) {
     if (!offsetsToTest.includes(i)) offsetsToTest.push(i);
@@ -773,12 +774,11 @@ function detectPageOffset(rawText) {
   for (const offset of offsetsToTest) {
     if (offset === 0) continue;
     let decodedSample = "";
-    const sampleLen = Math.min(rawText.length, 1500); // 정확도 향상을 위해 샘플링 검출 대역 확장
+    const sampleLen = Math.min(rawText.length, 1500);
     for (let j = 0; j < sampleLen; j++) {
       decodedSample += String.fromCharCode(rawText.charCodeAt(j) + offset);
     }
     
-    // 특수문자 전처리 정규화 후 매칭 정밀 확인
     const cleanSample = decodedSample.replace(/[^A-Za-z0-9\s]/g, ' ').toUpperCase();
     let matchCount = 0;
     for (const kw of testKeywords) {
@@ -788,34 +788,49 @@ function detectPageOffset(rawText) {
     if (matchCount > bestMatches) {
       bestMatches = matchCount;
       bestOffset = offset;
-      if (bestMatches >= 3) break; 
     }
   }
   
-  return bestMatches >= 1 ? bestOffset : 0;
+  return bestOffset;
 }
 
 function decodeStr(str, offset) {
   if (!offset || !str) return str;
   let decoded = "";
   for (let i = 0; i < str.length; i++) {
-    const charCode = str.charCodeAt(i);
-    
-    // 1. 영어 알파벳 대문자 (A-Z: 65-90) 및 소문자 (a-z: 97-122) 대역인 경우
-    const isAlphabet = (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122);
-    if (isAlphabet) {
-      // 대소문자가 반전되어 들어온 폰트의 물리 텍스트 상태를 원상 복원
-      if (charCode >= 65 && charCode <= 90) {
-        decoded += String.fromCharCode(charCode + 32); 
-      } else {
-        decoded += String.fromCharCode(charCode - 32); 
-      }
-    } else {
-      // 2. 그 외 숫자 및 특수문자 영역은 안전하게 산출된 가변 오프셋 쉬프트 연산을 대입
-      decoded += String.fromCharCode(charCode + offset);
-    }
+    decoded += String.fromCharCode(str.charCodeAt(i) + offset);
   }
   return decoded;
+}
+
+// ── [Smart Overlapping Layer Isolation and Cleanser] ──
+// Filters raw and shift-obfuscated duplicates in real-time
+function cleanAndDecodeItem(str, offset) {
+  if (!offset || !str) return str;
+  
+  const origStandardCount = (str.match(/[A-Z0-9\s\/\.\-\(\)]/g) || []).length;
+  const decrypted = decodeStr(str, offset);
+  const decStandardCount = (decrypted.match(/[A-Z0-9\s\/\.\-\(\)]/g) || []).length;
+  
+  if (decStandardCount > origStandardCount) {
+    return decrypted;
+  }
+  return str;
+}
+
+// ── [Consolidated Token Deduplicator] ──
+// Eliminates consecutive duplicates from overlapping FPL lines
+function deduplicateWords(text) {
+  if (!text) return text;
+  const words = text.split(/\s+/);
+  const cleanWords = [];
+  for (let i = 0; i < words.length; i++) {
+    if (i > 0 && words[i].toUpperCase() === words[i-1].toUpperCase() && words[i].length > 0) {
+      continue;
+    }
+    cleanWords.push(words[i]);
+  }
+  return cleanWords.join(' ');
 }
 
 async function extractReleaseAirportsByRule2(pdfJsDoc) {
@@ -826,13 +841,13 @@ async function extractReleaseAirportsByRule2(pdfJsDoc) {
       const textContent = await page.getTextContent();
       const rawText = textContent.items.map(it => it.str).join(' ');
       const offset = detectPageOffset(rawText);
-      const decodedText = textContent.items.map(it => decodeStr(it.str, offset)).join(' ');
+      const decodedText = textContent.items.map(it => cleanAndDecodeItem(it.str, offset)).join(' ');
 
       const releaseRegex = /I\s+HEREBY\s+RELEASE\s+(THE\s+)?FLIGHT\s+[A-Z0-9]+\/\d{2}[A-Z]{3},\s*([A-Z]{3})\/([A-Z]{3})/i;
       const m = releaseRegex.exec(decodedText);
       if (m) {
-        airports.push(m[2].toUpperCase().trim()); 
-        airports.push(m[3].toUpperCase().trim()); 
+        airports.push(m[2].toUpperCase().trim()); // Origin
+        airports.push(m[3].toUpperCase().trim()); // Destination
         break; 
       }
     }
@@ -844,13 +859,13 @@ async function extractReleaseAirportsByRule2(pdfJsDoc) {
           const textContent = await page.getTextContent();
           const rawText = textContent.items.map(it => it.str).join(' ');
           const offset = detectPageOffset(rawText);
-          const decodedText = textContent.items.map(it => decodeStr(it.str, offset)).join(' ');
+          const decodedText = textContent.items.map(it => cleanAndDecodeItem(it.str, offset)).join(' ');
           
           const fallbackRegex = /FLIGHT\s+RELEASE\s+[A-Z0-9]+\s+([A-Z]{3,4})\s*[\/-]\s*([A-Z]{3,4})/i;
           const m = fallbackRegex.exec(decodedText);
           if (m) {
-            airports.push(m[1].toUpperCase().trim().substring(0,3)); 
-            airports.push(m[2].toUpperCase().trim().substring(0,3)); 
+            airports.push(m[1].toUpperCase().trim().substring(0,3)); // Origin
+            airports.push(m[2].toUpperCase().trim().substring(0,3)); // Destination
             break;
           }
         }
@@ -868,7 +883,7 @@ async function extractMetadata(pdfJsDoc) {
     const textContent = await firstPage.getTextContent();
     const rawText = textContent.items.map(it => it.str).join(' ');
     const offset = detectPageOffset(rawText);
-    const decodedText = textContent.items.map(it => decodeStr(it.str, offset)).join(' ');
+    const decodedText = textContent.items.map(it => cleanAndDecodeItem(it.str, offset)).join(' ');
 
     const flightMatch = decodedText.match(/\b(KAL|KE|KAL\s+|KE\s*)(\d{3,4})\b/i);
     if (flightMatch) {
@@ -977,7 +992,7 @@ async function runHL(){
       const rawText=tc.items.map(it=>it.str).join(' ');
       
       const offset = detectPageOffset(rawText);
-      const pageText=tc.items.map(it=>decodeStr(it.str, offset)).join(' ');
+      const pageText=tc.items.map(it=>cleanAndDecodeItem(it.str, offset)).join(' ');
       
       for(const bm of BOOKMARK_PATTERNS){
         if(bmPages[bm.label]!==undefined)continue;
@@ -1003,7 +1018,7 @@ async function runHL(){
       const textC=await jsPageScan.getTextContent();
       const pText=textC.items.map(it=>it.str).join(' ');
       const scanOffset = detectPageOffset(pText);
-      const decodedScanText = textC.items.map(it => decodeStr(it.str, scanOffset)).join(' ');
+      const decodedScanText = textC.items.map(it => cleanAndDecodeItem(it.str, scanOffset)).join(' ');
       if (/EDTO\s+EQUAL\s+TIME\s+POINT\s+DATA/i.test(decodedScanText)) {
         edtoPointDataPageIdx = pi;
         break;
@@ -1014,26 +1029,24 @@ async function runHL(){
     let totalHits=0;
 
     for(let pi=0;pi<numPages;pi++){
-      const jsPage = await pdfJsDoc.getPage(pi+1);
-      const vp = jsPage.getViewport({scale:1.0});
-      const libPage = libPages[pi];
-      
-      // 페이지 리사이징 연산이 모두 삭제되어 원본 가로/세로 기하 비율 그대로 복구
-      const { width: origWidth, height: origHeight } = libPage.getSize();
-      
-      const sx = (origWidth / vp.width);
-      const sy = (origHeight / vp.height);
+      const jsPage=await pdfJsDoc.getPage(pi+1);
+      const vp=jsPage.getViewport({scale:1.0});
+      const libPage=libPages[pi];
+      const {width:lw,height:lh}=libPage.getSize();
+      const sx=lw/vp.width;
+      const sy=lh/vp.height;
+      const content=await jsPage.getTextContent();
 
-      const content = await jsPage.getTextContent();
       const rawPageText = content.items.map(it => it.str).join(' ');
       const pageOffset = detectPageOffset(rawPageText);
 
       const isPackage3Page = (pkg3StartIdx !== -1 && pi >= pkg3StartIdx);
       const isDispatchPage = (dispatchReleaseIdx !== -1 && pi >= dispatchReleaseIdx && pi < dispatchEndIdx);
 
+      // Search layer repair: Re-inject original English text invisibly over the corrupted layers
       if (pageOffset !== 0) {
         for (const item of content.items) {
-          const originalStr = decodeStr(item.str, pageOffset);
+          const originalStr = cleanAndDecodeItem(item.str, pageOffset);
           if (originalStr && originalStr.trim()) {
             const tx = item.transform;
             const rx = tx[4] * sx;
@@ -1058,7 +1071,7 @@ async function runHL(){
       const groupedLines = [];
       const sortedItems = content.items
         .filter(it => {
-          const sDec = decodeStr(it.str, pageOffset);
+          const sDec = cleanAndDecodeItem(it.str, pageOffset);
           return sDec && sDec.trim();
         })
         .sort((a, b) => b.transform[5] - a.transform[5]);
@@ -1082,7 +1095,7 @@ async function runHL(){
 
       for (const line of groupedLines) {
         const lineItems = line.items.sort((a,b) => a.transform[4] - b.transform[4]);
-        const lineText = lineItems.map(it => decodeStr(it.str, pageOffset)).join(' ');
+        const lineText = lineItems.map(it => cleanAndDecodeItem(it.str, pageOffset)).join(' ');
 
         if (isDispatchPage || isPackage3Page) {
           if (detectedAirports.length === 2) {
@@ -1131,20 +1144,41 @@ async function runHL(){
 
         const isParLine = /\/\s*[A-Z]{4}\s+FIR/i.test(lineText);
         if (isParLine) {
-          const minX = Math.min(...lineItems.map(it => it.transform[4]));
-          const maxX = Math.max(...lineItems.map(it => it.transform[4] + (it.width || 0)));
-          const itemY = line.y;
-          const itemH = Math.abs(lineItems[0].transform[3]) || 10;
-
-          libPage.drawRectangle({
-                x: minX * sx,
-                y: itemY * sy,
-                width: (maxX - minX) * sx,
-                height: Math.max(itemH * sy, 8),
-                color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
-                opacity: 0.4,
-              });
-          totalHits++;
+          const firRegex = /\bFIR\b/i;
+          const match = firRegex.exec(lineText);
+          if (match) {
+            const postFirText = lineText.substring(match.index + match[0].length);
+            const wordMatch = postFirText.match(/[A-Za-z]{3,}/);
+            if (wordMatch) {
+              const targetWord = wordMatch[0];
+              for (const item of lineItems) {
+                const s = cleanAndDecodeItem(item.str, pageOffset);
+                const tx = item.transform;
+                const itemX = tx[4], itemY = tx[5];
+                const itemW = item.width || 0;
+                const itemH = Math.abs(tx[3]) || 10;
+                const charW = itemW / Math.max(s.length, 1);
+                
+                const idx = s.toUpperCase().indexOf(targetWord.toUpperCase());
+                if (idx !== -1) {
+                  const rx = (itemX + idx * charW) * sx;
+                  const ry = itemY * sy;
+                  const rw = targetWord.length * charW * sx;
+                  const rh = itemH * sy;
+                  
+                  libPage.drawRectangle({
+                    x: rx,
+                    y: ry,
+                    width: Math.max(rw, 4),
+                    height: Math.max(rh, 8),
+                    color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
+                    opacity: 0.4
+                  });
+                  totalHits++;
+                }
+              }
+            }
+          }
           continue; 
         }
 
@@ -1169,7 +1203,7 @@ async function runHL(){
         }
 
         for (const item of lineItems) {
-          const s = decodeStr(item.str, pageOffset); 
+          const s = cleanAndDecodeItem(item.str, pageOffset); 
           const tx = item.transform;
           const itemX = tx[4], itemY = tx[5];
           const itemW = item.width||0;
@@ -1179,7 +1213,6 @@ async function runHL(){
           for(const kw of keywords){
             let re;
             try {
-              // ── [경계 보정 정밀 정규화 패턴] ──
               re = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`,'gi');
             } catch(e) {
               re = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
@@ -1213,7 +1246,7 @@ async function runHL(){
           if (msaVal >= 100) {
             const targetMsaStr = msaMatch[1];
             for (const item of lineItems) {
-              const s = decodeStr(item.str, pageOffset);
+              const s = cleanAndDecodeItem(item.str, pageOffset);
               let idx = s.indexOf("/" + targetMsaStr);
               if (idx !== -1) {
                 idx += 1;
@@ -1277,6 +1310,226 @@ async function runHL(){
       for(const ref of outlineItems)ctx.lookup(ref).set(PDFLib.PDFName.of('Parent'),outlineRef);
       pdfLibDoc.catalog.set(PDFLib.PDFName.of('Outlines'),outlineRef);
       pdfLibDoc.catalog.set(PDFLib.PDFName.of('PageMode'),PDFLib.PDFName.of('UseOutlines'));
+    }
+
+    const cfpPageIdx=bmPages['CFP PLAN'];
+    let coaPageIdx=bmPages['COPY OF ATS'];
+    
+    let resolvedCoaPageIdx = coaPageIdx !== undefined ? coaPageIdx : -1;
+    let foundCoaPageOffset = 0;
+    
+    for (let pi = 0; pi < numPages; pi++) {
+      const scanJsPage = await pdfJsDoc.getPage(pi + 1);
+      const scanTextContent = await scanJsPage.getTextContent();
+      const rawScanText = scanTextContent.items.map(it => it.str).join(' ');
+      const scanOffset = detectPageOffset(rawScanText);
+      const decodedScanText = scanTextContent.items.map(it => cleanAndDecodeItem(it.str, scanOffset)).join(' ');
+      
+      if (decodedScanText.toUpperCase().includes("COPY OF ATS FPL, SUBMITTED AT") || decodedScanText.toUpperCase().includes("COPY OF ATS FPL")) {
+        resolvedCoaPageIdx = pi;
+        foundCoaPageOffset = scanOffset;
+        break;
+      }
+    }
+
+    if(cfpPageIdx!==undefined && resolvedCoaPageIdx!==-1){
+      const cfpJsPage=await pdfJsDoc.getPage(cfpPageIdx+1);
+      const cfpContent=await cfpJsPage.getTextContent();
+      
+      const rawCfpText = cfpContent.items.map(it => it.str).join(' ');
+      const cfpOffset = detectPageOffset(rawCfpText);
+
+      const cfpItems=cfpContent.items.slice().sort((a,b)=>{
+        const ay=a.transform[5],by2=b.transform[5];
+        if(Math.abs(ay-by2)>2)return by2-ay;
+        return a.transform[4]-b.transform[4];
+      });
+      
+      let cfpFullTextWithNewlines = "";
+      let lastY = null;
+      for (const item of cfpItems) {
+        const decodedStr = cleanAndDecodeItem(item.str, cfpOffset);
+        if (lastY !== null && Math.abs(item.transform[5] - lastY) > 4.5) {
+          cfpFullTextWithNewlines += "\n";
+        }
+        cfpFullTextWithNewlines += decodedStr + " ";
+        lastY = item.transform[5];
+      }
+
+      let extractedRoute = "";
+      if (detectedAirports.length === 2) {
+        const depCode = detectedAirports[0];
+        const arrCode = detectedAirports[1];
+        const dynamicRouteRegex = new RegExp(`(${depCode}\\s+[A-Z0-9]+\\s+[A-Z0-9\\s\\.]*?\\.\\.\\s*${arrCode}\\b)`, 'i');
+        const rMatch = cfpFullTextWithNewlines.match(dynamicRouteRegex);
+        if (rMatch) {
+          extractedRoute = rMatch[1].trim();
+        }
+      }
+
+      if (!extractedRoute) {
+        const fallbackRouteRegex = /(KSEA\s+[A-Z0-9]+\s+[A-Z0-9\s\.]*?\.\.\s*RKSI\b)/i;
+        const fbMatch = cfpFullTextWithNewlines.match(fallbackRouteRegex);
+        if (fbMatch) {
+          extractedRoute = fbMatch[1].trim();
+        } else {
+          const genericRouteRegex = /([A-Z]{4}\s+[A-Z0-9]+\s+[A-Z0-9\\s\\.]*?\\.\\.\\s*[A-Z]{4}\\b)/i;
+          const genMatch = cfpFullTextWithNewlines.match(genericRouteRegex);
+          if (genMatch) {
+            extractedRoute = genMatch[1].trim();
+          }
+        }
+      }
+
+      if(extractedRoute) {
+        const cleanRoute = deduplicateWords(extractedRoute);
+
+        const coaJsPage=await pdfJsDoc.getPage(resolvedCoaPageIdx+1);
+        const coaContent=await coaJsPage.getTextContent();
+        const coaLibPage = libPages[resolvedCoaPageIdx];
+        const {width:coaW,height:coaH}=coaLibPage.getSize();
+        const coaVp=coaJsPage.getViewport({scale:1.0});
+        const coaSy=coaH/coaVp.height;
+
+        const fontSize=9,lineH=fontSize*1.4,padding=8;
+        const pageMargin = 30; 
+        const maxWidth = coaW - (pageMargin * 2) - (padding * 2); 
+        
+        const charsPerLine=Math.floor(maxWidth / (fontSize * 0.54));
+        
+        const wrapRouteText = (text, maxChars) => {
+          const sanitizedText = text.replace(/\r?\n/g, " ").replace(/\s+/g, " ").trim();
+          
+          const rawWords = sanitizedText.split(" ");
+          const tokens = [];
+          for (const word of rawWords) {
+            if (!word) continue;
+            const parts = word.split("..");
+            for (let i = 0; i < parts.length; i++) {
+              if (parts[i]) tokens.push(parts[i]);
+              if (i < parts.length - 1) tokens.push("..");
+            }
+            tokens.push(" "); 
+          }
+          if (tokens[tokens.length - 1] === " ") tokens.pop();
+
+          const lines = [];
+          let currentLine = "";
+          
+          for (let token of tokens) {
+            if (token === " ") {
+              if (currentLine.length > 0 && !currentLine.endsWith("..") && !currentLine.endsWith(" ")) {
+                currentLine += " ";
+              }
+              continue;
+            }
+            
+            if (token === "..") {
+              if (currentLine.endsWith(" ")) {
+                currentLine = currentLine.slice(0, -1);
+              }
+            }
+            
+            if (token.length > maxChars) {
+              if (currentLine.length > 0) {
+                lines.push(currentLine.trim());
+                currentLine = "";
+              }
+              
+              let tempWord = token;
+              while (tempWord.length > maxChars) {
+                lines.push(tempWord.substring(0, maxChars));
+                tempWord = tempWord.substring(maxChars);
+              }
+              currentLine = tempWord;
+              continue;
+            }
+            
+            if (currentLine.length + token.length > maxChars) {
+              if (currentLine.length > 0) {
+                lines.push(currentLine.trim());
+              }
+              currentLine = token;
+            } else {
+              currentLine += token;
+            }
+          }
+          
+          if (currentLine.trim().length > 0) {
+            lines.push(currentLine.trim());
+          }
+          
+          return lines.map(line => line.replace(/\s*\.\.\s*/g, '..'));
+        };
+
+        const originalRawLines = cleanRoute.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        const lines = [];
+        for (const rawLine of originalRawLines) {
+          const processedWrapped = wrapRouteText(rawLine, charsPerLine);
+          lines.push(...processedWrapped);
+        }
+
+        const blockH=lines.length*lineH+padding*2;
+
+        let targetLineY = -1;
+        let targetLineMinY = -1; 
+        
+        const coaLinesMap = {};
+        for (const it of coaContent.items) {
+          if (!it.str) continue;
+          const y = Math.round(it.transform[5]);
+          if (!coaLinesMap[y]) coaLinesMap[y] = [];
+          coaLinesMap[y].push(it);
+        }
+
+        for (const yKey of Object.keys(coaLinesMap)) {
+          const sortedLineItems = coaLinesMap[yKey].sort((a, b) => a.transform[4] - b.transform[4]);
+          const lineText = sortedLineItems.map(it => cleanAndDecodeItem(it.str, foundCoaPageOffset)).join(' ');
+          if (lineText.toUpperCase().includes("COPY OF ATS FPL, SUBMITTED AT") || lineText.toUpperCase().includes("COPY OF ATS FPL")) {
+            targetLineY = parseFloat(yKey) * coaSy;
+            const lineItemHeights = sortedLineItems.map(it => Math.abs(it.transform[3]) || 10);
+            const maxLineHeight = Math.max(...lineItemHeights) * coaSy;
+            targetLineMinY = targetLineY - maxLineHeight; 
+            break;
+          }
+        }
+
+        let blockY;
+        if (targetLineMinY !== -1) {
+          blockY = targetLineMinY - blockH - 12;
+        } else {
+          let lowestY=coaH;
+          for(const it of coaContent.items){
+            const iy = it.transform[5] * coaSy;
+            if(iy < lowestY && iy > 20) lowestY = iy;
+          }
+          blockY = Math.max(lowestY - blockH - 18, 25);
+        }
+
+        coaLibPage.drawRectangle({
+          x: pageMargin,
+          y: blockY,
+          width: maxWidth + (padding * 2),
+          height: blockH,
+          color: PDFLib.rgb(0.92, 0.96, 1.0),
+          borderColor: PDFLib.rgb(0.36, 0.78, 1.0),
+          borderWidth: 1.5,
+          opacity: 0.96
+        });
+
+        const font = await pdfLibDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+        for(let li=0;li<lines.length;li++){
+          const ty=blockY+blockH-padding-(li+1)*lineH+lineH*0.25;
+          coaLibPage.drawText(lines[li],{
+            x: pageMargin + padding,
+            y: ty,
+            size: fontSize,
+            font,
+            color: PDFLib.rgb(0.05, 0.12, 0.25),
+            maxWidth: maxWidth
+          });
+        }
+      }
     }
 
     outBytes=await pdfLibDoc.save();

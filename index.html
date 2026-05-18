@@ -735,7 +735,6 @@ function loadFile(file){
 
 function checkKeywordMatch(text, kw) {
   // ── [지능형 자간 정규화 필터 적용] ──
-  // 자간 격차(Kerning) 오류로 알파벳 사이에 미세 공백이나 특수 부호 노이즈가 포함되어 있어도, 안전하게 공백 정렬 후 매칭을 시도합니다.
   const normalizedText = text.replace(/[^A-Za-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
   const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   
@@ -946,6 +945,7 @@ async function runHL(){
 
     await extractMetadata(pdfJsDoc);
 
+    // ── [복원 완료] PDF 자동 아웃라인 북마크 생성을 위한 식별 패턴 배열 ──
     const BOOKMARK_PATTERNS=[
       {label:'CFP PLAN',pattern:/CFP\s+PLAN/i},
       {label:'COPY OF ATS',pattern:/COPY\s+OF\s+ATS/i},
@@ -1238,6 +1238,29 @@ async function runHL(){
           }
         }
       }
+    }
+
+    // ── [복원 완료] PDF Outline 구조 생성 및 Catalog UseOutlines 바인딩 ──
+    const ctx=pdfLibDoc.context;
+    const outlineItems=[];
+    for(const bm of BOOKMARK_PATTERNS){
+      const pi=bmPages[bm.label];if(pi===undefined)continue;
+      const pageRef=pdfLibDoc.getPage(pi).ref;
+      const dest=ctx.obj([pageRef,PDFLib.PDFName.of('Fit')]);
+      const itemDict=ctx.obj({Title:PDFLib.PDFString.of(bm.label),Dest:dest});
+      outlineItems.push(ctx.register(itemDict));
+    }
+    if(outlineItems.length>0){
+      for(let i=0;i<outlineItems.length;i++){
+        const d=ctx.lookup(outlineItems[i]);
+        if(i>0)d.set(PDFLib.PDFName.of('Prev'),outlineItems[i-1]);
+        if(i<outlineItems.length-1)d.set(PDFLib.PDFName.of('Next'),outlineItems[i+1]);
+      }
+      const outlineDict=ctx.obj({Type:PDFLib.PDFName.of('Outlines'),First:outlineItems[0],Last:outlineItems[outlineItems.length-1],Count:PDFLib.PDFNumber.of(outlineItems.length)});
+      const outlineRef=ctx.register(outlineDict);
+      for(const ref of outlineItems)ctx.lookup(ref).set(PDFLib.PDFName.of('Parent'),outlineRef);
+      pdfLibDoc.catalog.set(PDFLib.PDFName.of('Outlines'),outlineRef);
+      pdfLibDoc.catalog.set(PDFLib.PDFName.of('PageMode'),PDFLib.PDFName.of('UseOutlines'));
     }
 
     outBytes=await pdfLibDoc.save();

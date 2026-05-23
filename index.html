@@ -30,7 +30,7 @@ body{
   text-align: center;
 }
 .header h1{
-  font-size:22px;
+  font-size:25px;
   font-weight:800;
   letter-spacing:1px;
   color:#fff;
@@ -39,7 +39,7 @@ body{
   color:#3b82f6;
 }
 .header p{
-  font-size:10.5px;
+  font-size:12px;
   color:#94a3b8;
   margin-top:4px;
 }
@@ -1112,6 +1112,7 @@ async function runHL(){
         const lineItems = line.items.sort((a,b) => a.transform[4] - b.transform[4]);
         const lineText = lineItems.map(it => cleanAndDecodeItem(it.str, pageOffset)).join(' ');
 
+        // 1. Route Check (Dispatch/Package 3)
         if (isDispatchPage || isPackage3Page) {
           if (detectedAirports.length === 2) {
             const dep = detectedAirports[0]; 
@@ -1123,12 +1124,13 @@ async function runHL(){
               const maxX = Math.max(...lineItems.map(it => it.transform[4] + (it.width || 0)));
               const itemY = line.y;
               const itemH = Math.abs(lineItems[0].transform[3]) || 10;
+              const rh = itemH * sy;
 
               libPage.drawRectangle({
                 x: minX * sx,
-                y: itemY * sy,
+                y: (itemY * sy) - (rh * 0.2), // OFFSET 보정
                 width: (maxX - minX) * sx,
-                height: Math.max(itemH * sy, 8),
+                height: Math.max(rh * 1.2, 8), // 높이 보정
                 color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
                 opacity: 0.2
               });
@@ -1138,6 +1140,176 @@ async function runHL(){
           }
         }
 
+        // 2. ETP Line
+        const isEtpLine = /\betp\s*[123]/i.test(lineText);
+        if (isEtpLine && isAfterEdtoHeader) {
+          const minX = Math.min(...lineItems.map(it => it.transform[4]));
+          const maxX = Math.max(...lineItems.map(it => it.transform[4] + (it.width || 0)));
+          const itemY = line.y;
+          const itemH = Math.abs(lineItems[0].transform[3]) || 10;
+          const rh = itemH * sy;
+
+          libPage.drawRectangle({
+                x: minX * sx,
+                y: (itemY * sy) - (rh * 0.2), // OFFSET 보정
+                width: (maxX - minX) * sx,
+                height: Math.max(rh * 1.2, 8), // 높이 보정
+                color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
+                opacity: 0.2
+              });
+          totalHits++;
+          continue; 
+        }
+
+        // 3. FIR Line
+        const isParLine = /\/\s*[A-Z]{4}\s+FIR/i.test(lineText);
+        if (isParLine) {
+          const firRegex = /\bFIR\b/i;
+          const match = firRegex.exec(lineText);
+          if (match) {
+            const postFirText = lineText.substring(match.index + match[0].length);
+            const wordMatch = postFirText.match(/[A-Za-z]{3,}/);
+            if (wordMatch) {
+              const targetWord = wordMatch[0];
+              for (const item of lineItems) {
+                const s = cleanAndDecodeItem(item.str, pageOffset);
+                const tx = item.transform;
+                const itemX = tx[4], itemY = tx[5];
+                const itemW = item.width || 0;
+                const itemH = Math.abs(tx[3]) || 10;
+                const charW = itemW / Math.max(s.length, 1);
+                
+                const idx = s.toUpperCase().indexOf(targetWord.toUpperCase());
+                if (idx !== -1) {
+                  const rx = (itemX + idx * charW) * sx;
+                  const ry = itemY * sy;
+                  const rw = targetWord.length * charW * sx;
+                  const rh = itemH * sy;
+                  
+                  libPage.drawRectangle({
+                    x: rx,
+                    y: ry - (rh * 0.2), // OFFSET 보정
+                    width: Math.max(rw, 4),
+                    height: Math.max(rh * 1.2, 8), // 높이 보정
+                    color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
+                    opacity: 0.2
+                  });
+                  totalHits++;
+                }
+              }
+            }
+          }
+          continue; 
+        }
+
+        // 4. 문장/단락 전체 하이라이트 (CLSD 등)
+        const hasSentenceKw = SENTENCE_KW.some(kw => checkKeywordMatch(lineText, kw));
+        if (hasSentenceKw) {
+          const minX = Math.min(...lineItems.map(it => it.transform[4]));
+          const maxX = Math.max(...lineItems.map(it => it.transform[4] + (it.width || 0)));
+          const itemY = line.y;
+          const itemH = Math.abs(lineItems[0].transform[3]) || 10;
+          const rh = itemH * sy;
+
+          libPage.drawRectangle({
+            x: minX * sx,
+            y: (itemY * sy) - (rh * 0.2), // OFFSET 보정
+            width: (maxX - minX) * sx,
+            height: Math.max(rh * 1.2, 8), // 높이 보정
+            color: PDFLib.rgb(intenseRGB[0], intenseRGB[1], intenseRGB[2]),
+            opacity: 0.25
+          });
+          totalHits++;
+          continue; 
+        }
+
+        // 5. 일반 단어 단위 하이라이트
+        for (const item of lineItems) {
+          const s = cleanAndDecodeItem(item.str, pageOffset); 
+          const tx = item.transform;
+          const itemX = tx[4], itemY = tx[5];
+          const itemW = item.width||0;
+          const itemH = Math.abs(tx[3])||10;
+          const charW = itemW / Math.max(s.length, 1);
+
+          for(const kw of keywords){
+            let re;
+            try {
+              re = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`,'gi');
+            } catch(e) {
+              re = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
+            }
+            
+            const cleanSourceText = s.replace(/[^A-Za-z0-9]/g, ' ');
+            let m;
+            while((m=re.exec(cleanSourceText))!==null){
+              const rx=(itemX+m.index*charW)*sx;
+              const ry=itemY*sy;
+              const rw=kw.length*charW*sx;
+              const rh=itemH*sy;
+              
+              libPage.drawRectangle({
+                x: rx,
+                y: ry - (rh * 0.2), // OFFSET 보정
+                width: Math.max(rw, 4),
+                height: Math.max(rh * 1.2, 8), // 높이 보정
+                color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
+                opacity: 0.2
+              });
+              totalHits++;
+            }
+          }
+        }
+
+        // 6. MSA 강조
+        const msaRegex = /---\s*\/\s*(\d{3})\b/i;
+        const msaMatch = lineText.match(msaRegex);
+        if (msaMatch) {
+          const msaVal = parseInt(msaMatch[1], 10);
+          if (msaVal >= 100) {
+            const targetMsaStr = msaMatch[1];
+            for (const item of lineItems) {
+              const s = cleanAndDecodeItem(item.str, pageOffset);
+              let idx = s.indexOf("/" + targetMsaStr);
+              if (idx !== -1) {
+                idx += 1;
+                const tx = item.transform;
+                const charW = (item.width || 0) / Math.max(item.str.length, 1);
+                const rx = (tx[4] + idx * charW) * sx;
+                const ry = tx[5] * sy;
+                const rw = targetMsaStr.length * charW * sx;
+                const rh = (Math.abs(tx[3]) || 10) * sy;
+
+                libPage.drawRectangle({
+                  x: rx - 1,
+                  y: ry - 1 - (rh * 0.2), // OFFSET 보정
+                  width: Math.max(rw + 2, 4),
+                  height: Math.max(rh * 1.2 + 2, 8), // 높이 보정
+                  color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
+                  opacity: 0.2
+                });
+                totalHits++;
+              } else if (s === targetMsaStr) {
+                const tx = item.transform;
+                const rx = tx[4] * sx;
+                const ry = tx[5] * sy;
+                const rw = (item.width || 0) * sx;
+                const rh = (Math.abs(tx[3]) || 10) * sy;
+
+                libPage.drawRectangle({
+                  x: rx - 1,
+                  y: ry - 1 - (rh * 0.2), // OFFSET 보정
+                  width: Math.max(rw + 2, 4),
+                  height: Math.max(rh * 1.2 + 2, 8), // 높이 보정
+                  color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
+                  opacity: 0.2
+                });
+                totalHits++;
+              }
+            }
+          }
+        }
+      }
         const isEtpLine = /\betp\s*[123]/i.test(lineText);
         if (isEtpLine && isAfterEdtoHeader) {
           const minX = Math.min(...lineItems.map(it => it.transform[4]));

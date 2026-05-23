@@ -954,7 +954,7 @@ async function runHL(){
   if(!canRun())return;
   if(!libsReady){setStatus('error','Required libraries not fully loaded.');return;}
 
-  const SENTENCE_KW = ['CLSD', 'CLOSED', 'RESTRICT'];
+  const SENTENCE_KW = ['CLSD', 'CLOSED', 'RESTRICT', 'NOT AVAIL'];
 
   const runBtn=document.getElementById('runBtn');
   runBtn.className='action-btn run-btn';

@@ -401,13 +401,6 @@ body{
   <div class="app">
     
     <div class="card">
-      <div class="card-title">🔌 EFB In-flight Offline Operation Guide</div>
-      <div class="offline-instruction" style="margin-bottom: 0;">
-        This web application executes <b>100% locally inside your browser memory</b>. No document data is ever sent to external servers. To use this program in-flight with no internet access, please save this HTML file and place the required engine files in the same directory.
-      </div>
-    </div>
-
-    <div class="card">
       <div class="card-title">📄 1. PDF FLIGHT PACKAGE</div>
       <div class="upload-area" id="uploadArea" onclick="document.getElementById('fi').click()">
         <div class="upload-icon">📁</div>
@@ -1137,7 +1130,7 @@ async function runHL(){
                 width: (maxX - minX) * sx,
                 height: Math.max(itemH * sy, 8),
                 color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
-                opacity: 0.4,
+                opacity: 0.2
               });
               totalHits++;
               continue;
@@ -1158,7 +1151,7 @@ async function runHL(){
                 width: (maxX - minX) * sx,
                 height: Math.max(itemH * sy, 8),
                 color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
-                opacity: 0.4,
+                opacity: 0.2
               });
           totalHits++;
           continue; 
@@ -1194,7 +1187,7 @@ async function runHL(){
                     width: Math.max(rw, 4),
                     height: Math.max(rh, 8),
                     color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
-                    opacity: 0.4
+                    opacity: 0.2
                   });
                   totalHits++;
                 }
@@ -1218,7 +1211,7 @@ async function runHL(){
             width: (maxX - minX) * sx,
             height: Math.max(itemH * sy, 8),
             color: PDFLib.rgb(intenseRGB[0], intenseRGB[1], intenseRGB[2]),
-            opacity: 0.45,
+            opacity: 0.25
           });
           totalHits++;
           continue; 
@@ -1254,7 +1247,7 @@ async function runHL(){
                 width: Math.max(rw, 4),
                 height: Math.max(rh, 8),
                 color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
-                opacity: 0.4
+                opacity: 0.2
               });
               totalHits++;
             }
@@ -1285,7 +1278,7 @@ async function runHL(){
                   width: Math.max(rw + 2, 4),
                   height: Math.max(rh + 2, 8),
                   color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
-                  opacity: 0.4
+                  opacity: 0.2
                 });
                 totalHits++;
               } else if (s === targetMsaStr) {
@@ -1301,7 +1294,7 @@ async function runHL(){
                   width: Math.max(rw + 2, 4),
                   height: Math.max(rh + 2, 8),
                   color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
-                  opacity: 0.4
+                  opacity: 0.2
                 });
                 totalHits++;
               }

@@ -401,8 +401,16 @@ body{
   <div class="app">
     
     <div class="card">
+      <div class="card-title">🔌 EFB In-flight Offline Operation Guide</div>
+      <div class="offline-instruction" style="margin-bottom: 0;">
+        This web application executes <b>100% locally inside your browser memory</b>. No document data is ever sent to external servers. To use this program in-flight with no internet access, please save this HTML file and place the required engine files in the same directory.
+      </div>
+    </div>
+
+    <div class="card">
       <div class="card-title">📄 1. PDF FLIGHT PACKAGE</div>
-      <div class="upload-area" id="uploadArea" onclick="document.getElementById('fi').click()">
+      <!-- 무한루프 방지를 위해 onclick 속성 제거 -->
+      <div class="upload-area" id="uploadArea">
         <div class="upload-icon">📁</div>
         <div class="upload-text">
           <div class="upload-label">Click here or drag & drop your flight package PDF</div>
@@ -726,7 +734,24 @@ function renderTags(){
 function rmCustom(i){sel.delete(custom[i]);custom.splice(i,1);renderTags();updBadge();done=false;updRun();}
 
 const fi=document.getElementById('fi'),ua=document.getElementById('uploadArea');
-fi.addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0]);});
+
+/* === 파일 첨부 안되는 버그 수정 부분 시작 === */
+// Div를 클릭할 때 무한 루프가 발생하지 않도록 e.target.id 조건을 걸어서 클릭 이벤트를 제어합니다.
+ua.addEventListener('click', e => {
+  if(e.target.id !== 'fi') {
+    fi.click();
+  }
+});
+
+fi.addEventListener('change',e=>{
+  if(e.target.files[0]) {
+    loadFile(e.target.files[0]);
+    // 같은 파일을 지우고 다시 올릴 수 있도록 input 값을 초기화해 줍니다.
+    e.target.value = ''; 
+  }
+});
+/* === 파일 첨부 안되는 버그 수정 부분 끝 === */
+
 ua.addEventListener('dragover',e=>{e.preventDefault();ua.style.borderColor='#3b82f6';});
 ua.addEventListener('dragleave',()=>{ua.style.borderColor='';});
 ua.addEventListener('drop',e=>{
@@ -771,14 +796,12 @@ function checkKeywordMatch(text, kw) {
   return re.test(normalizedText);
 }
 
-// 수정된 부분: 정상 텍스트(offset 0)일 때의 우선순위와 처리를 강화하여 멀쩡한 글자가 깨지는 현상을 방지합니다.
 function detectPageOffset(rawText) {
   const testKeywords = ["NOTAM", "PACKAGE", "PLAN", "FLIGHT", "KOREAN", "RELEASE", "WEATHER", "AIR", "ROUTE", "ALTN", "INFO"];
   
   let bestOffset = 0;
-  let bestMatches = -1; // -1로 설정하여 매치가 0개라도 offset 0이 가장 먼저 우선권을 가지도록 함
+  let bestMatches = -1; 
   
-  // 0을 맨 앞에 두어, 0일 때 가장 먼저 평가되게 합니다.
   const offsetsToTest = [0, 29, -29, 32, -32];
   for (let i = -120; i <= 120; i++) {
     if (!offsetsToTest.includes(i)) offsetsToTest.push(i);
@@ -788,7 +811,6 @@ function detectPageOffset(rawText) {
     let decodedSample = "";
     const sampleLen = Math.min(rawText.length, 1500);
     
-    // 오프셋 0일 때는 변환 없이 앞부분 그대로 사용
     if (offset === 0) {
       decodedSample = rawText.substring(0, sampleLen);
     } else {
@@ -1059,7 +1081,6 @@ async function runHL(){
       if (pageOffset !== 0) {
         for (const item of content.items) {
           const originalStr = cleanAndDecodeItem(item.str, pageOffset);
-          // 수정된 부분: 호환되지 않는 문자로 인해 렌더링 에러가 발생하는 것을 방지
           const asciiStr = originalStr ? originalStr.replace(/[^\x00-\x7F]/g, '') : '';
           
           if (asciiStr && asciiStr.trim()) {
@@ -1112,7 +1133,6 @@ async function runHL(){
         const lineItems = line.items.sort((a,b) => a.transform[4] - b.transform[4]);
         const lineText = lineItems.map(it => cleanAndDecodeItem(it.str, pageOffset)).join(' ');
 
-        // 1. Route Check (Dispatch/Package 3)
         if (isDispatchPage || isPackage3Page) {
           if (detectedAirports.length === 2) {
             const dep = detectedAirports[0]; 
@@ -1128,20 +1148,18 @@ async function runHL(){
 
               libPage.drawRectangle({
                 x: minX * sx,
-                y: (itemY * sy) - (rh * 0.2), // OFFSET 보정
+                y: (itemY * sy) - (rh * 0.2), 
                 width: (maxX - minX) * sx,
-                height: Math.max(rh * 1.2, 8), // 높이 보정
+                height: Math.max(rh * 1.2, 8), 
                 color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
                 opacity: 0.2
               });
               totalHits++;
               continue;
-              }
             }
           }
         }
 
-        // 2. ETP Line
         const isEtpLine = /\betp\s*[123]/i.test(lineText);
         if (isEtpLine && isAfterEdtoHeader) {
           const minX = Math.min(...lineItems.map(it => it.transform[4]));
@@ -1152,177 +1170,9 @@ async function runHL(){
 
           libPage.drawRectangle({
                 x: minX * sx,
-                y: (itemY * sy) - (rh * 0.2), // OFFSET 보정
+                y: (itemY * sy) - (rh * 0.2), 
                 width: (maxX - minX) * sx,
-                height: Math.max(rh * 1.2, 8), // 높이 보정
-                color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
-                opacity: 0.2
-              });
-          totalHits++;
-          continue; 
-        }
-
-        // 3. FIR Line
-        const isParLine = /\/\s*[A-Z]{4}\s+FIR/i.test(lineText);
-        if (isParLine) {
-          const firRegex = /\bFIR\b/i;
-          const match = firRegex.exec(lineText);
-          if (match) {
-            const postFirText = lineText.substring(match.index + match[0].length);
-            const wordMatch = postFirText.match(/[A-Za-z]{3,}/);
-            if (wordMatch) {
-              const targetWord = wordMatch[0];
-              for (const item of lineItems) {
-                const s = cleanAndDecodeItem(item.str, pageOffset);
-                const tx = item.transform;
-                const itemX = tx[4], itemY = tx[5];
-                const itemW = item.width || 0;
-                const itemH = Math.abs(tx[3]) || 10;
-                const charW = itemW / Math.max(s.length, 1);
-                
-                const idx = s.toUpperCase().indexOf(targetWord.toUpperCase());
-                if (idx !== -1) {
-                  const rx = (itemX + idx * charW) * sx;
-                  const ry = itemY * sy;
-                  const rw = targetWord.length * charW * sx;
-                  const rh = itemH * sy;
-                  
-                  libPage.drawRectangle({
-                    x: rx,
-                    y: ry - (rh * 0.2), // OFFSET 보정
-                    width: Math.max(rw, 4),
-                    height: Math.max(rh * 1.2, 8), // 높이 보정
-                    color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
-                    opacity: 0.2
-                  });
-                  totalHits++;
-                }
-              }
-            }
-          }
-          continue; 
-        }
-
-        // 4. 문장/단락 전체 하이라이트 (CLSD 등)
-        const hasSentenceKw = SENTENCE_KW.some(kw => checkKeywordMatch(lineText, kw));
-        if (hasSentenceKw) {
-          const minX = Math.min(...lineItems.map(it => it.transform[4]));
-          const maxX = Math.max(...lineItems.map(it => it.transform[4] + (it.width || 0)));
-          const itemY = line.y;
-          const itemH = Math.abs(lineItems[0].transform[3]) || 10;
-          const rh = itemH * sy;
-
-          libPage.drawRectangle({
-            x: minX * sx,
-            y: (itemY * sy) - (rh * 0.2), // OFFSET 보정
-            width: (maxX - minX) * sx,
-            height: Math.max(rh * 1.2, 8), // 높이 보정
-            color: PDFLib.rgb(intenseRGB[0], intenseRGB[1], intenseRGB[2]),
-            opacity: 0.25
-          });
-          totalHits++;
-          continue; 
-        }
-
-        // 5. 일반 단어 단위 하이라이트
-        for (const item of lineItems) {
-          const s = cleanAndDecodeItem(item.str, pageOffset); 
-          const tx = item.transform;
-          const itemX = tx[4], itemY = tx[5];
-          const itemW = item.width||0;
-          const itemH = Math.abs(tx[3])||10;
-          const charW = itemW / Math.max(s.length, 1);
-
-          for(const kw of keywords){
-            let re;
-            try {
-              re = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`,'gi');
-            } catch(e) {
-              re = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
-            }
-            
-            const cleanSourceText = s.replace(/[^A-Za-z0-9]/g, ' ');
-            let m;
-            while((m=re.exec(cleanSourceText))!==null){
-              const rx=(itemX+m.index*charW)*sx;
-              const ry=itemY*sy;
-              const rw=kw.length*charW*sx;
-              const rh=itemH*sy;
-              
-              libPage.drawRectangle({
-                x: rx,
-                y: ry - (rh * 0.2), // OFFSET 보정
-                width: Math.max(rw, 4),
-                height: Math.max(rh * 1.2, 8), // 높이 보정
-                color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
-                opacity: 0.2
-              });
-              totalHits++;
-            }
-          }
-        }
-
-        // 6. MSA 강조
-        const msaRegex = /---\s*\/\s*(\d{3})\b/i;
-        const msaMatch = lineText.match(msaRegex);
-        if (msaMatch) {
-          const msaVal = parseInt(msaMatch[1], 10);
-          if (msaVal >= 100) {
-            const targetMsaStr = msaMatch[1];
-            for (const item of lineItems) {
-              const s = cleanAndDecodeItem(item.str, pageOffset);
-              let idx = s.indexOf("/" + targetMsaStr);
-              if (idx !== -1) {
-                idx += 1;
-                const tx = item.transform;
-                const charW = (item.width || 0) / Math.max(item.str.length, 1);
-                const rx = (tx[4] + idx * charW) * sx;
-                const ry = tx[5] * sy;
-                const rw = targetMsaStr.length * charW * sx;
-                const rh = (Math.abs(tx[3]) || 10) * sy;
-
-                libPage.drawRectangle({
-                  x: rx - 1,
-                  y: ry - 1 - (rh * 0.2), // OFFSET 보정
-                  width: Math.max(rw + 2, 4),
-                  height: Math.max(rh * 1.2 + 2, 8), // 높이 보정
-                  color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
-                  opacity: 0.2
-                });
-                totalHits++;
-              } else if (s === targetMsaStr) {
-                const tx = item.transform;
-                const rx = tx[4] * sx;
-                const ry = tx[5] * sy;
-                const rw = (item.width || 0) * sx;
-                const rh = (Math.abs(tx[3]) || 10) * sy;
-
-                libPage.drawRectangle({
-                  x: rx - 1,
-                  y: ry - 1 - (rh * 0.2), // OFFSET 보정
-                  width: Math.max(rw + 2, 4),
-                  height: Math.max(rh * 1.2 + 2, 8), // 높이 보정
-                  color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
-                  opacity: 0.2
-                });
-                totalHits++;
-              }
-            }
-          }
-        }
-      }
-        const isEtpLine = /\betp\s*[123]/i.test(lineText);
-        if (isEtpLine && isAfterEdtoHeader) {
-          const minX = Math.min(...lineItems.map(it => it.transform[4]));
-          const maxX = Math.max(...lineItems.map(it => it.transform[4] + (it.width || 0)));
-          const itemY = line.y;
-          const itemH = Math.abs(lineItems[0].transform[3]) || 10;
-
-          libPage.drawRectangle({
-                x: minX * sx,
-                y: itemY * sy,
-                width: (maxX - minX) * sx,
-                height: Math.max(itemH * sy, 8),
+                height: Math.max(rh * 1.2, 8), 
                 color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
                 opacity: 0.2
               });
@@ -1356,9 +1206,9 @@ async function runHL(){
                   
                   libPage.drawRectangle({
                     x: rx,
-                    y: ry,
+                    y: ry - (rh * 0.2), 
                     width: Math.max(rw, 4),
-                    height: Math.max(rh, 8),
+                    height: Math.max(rh * 1.2, 8), 
                     color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
                     opacity: 0.2
                   });
@@ -1377,12 +1227,13 @@ async function runHL(){
           const maxX = Math.max(...lineItems.map(it => it.transform[4] + (it.width || 0)));
           const itemY = line.y;
           const itemH = Math.abs(lineItems[0].transform[3]) || 10;
+          const rh = itemH * sy;
 
           libPage.drawRectangle({
             x: minX * sx,
-            y: itemY * sy,
+            y: (itemY * sy) - (rh * 0.2), 
             width: (maxX - minX) * sx,
-            height: Math.max(itemH * sy, 8),
+            height: Math.max(rh * 1.2, 8), 
             color: PDFLib.rgb(intenseRGB[0], intenseRGB[1], intenseRGB[2]),
             opacity: 0.25
           });
@@ -1416,9 +1267,9 @@ async function runHL(){
               
               libPage.drawRectangle({
                 x: rx,
-                y: ry,
+                y: ry - (rh * 0.2), 
                 width: Math.max(rw, 4),
-                height: Math.max(rh, 8),
+                height: Math.max(rh * 1.2, 8), 
                 color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
                 opacity: 0.2
               });
@@ -1447,9 +1298,9 @@ async function runHL(){
 
                 libPage.drawRectangle({
                   x: rx - 1,
-                  y: ry - 1,
+                  y: ry - 1 - (rh * 0.2), 
                   width: Math.max(rw + 2, 4),
-                  height: Math.max(rh + 2, 8),
+                  height: Math.max(rh * 1.2 + 2, 8), 
                   color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
                   opacity: 0.2
                 });
@@ -1463,9 +1314,9 @@ async function runHL(){
 
                 libPage.drawRectangle({
                   x: rx - 1,
-                  y: ry - 1,
+                  y: ry - 1 - (rh * 0.2), 
                   width: Math.max(rw + 2, 4),
-                  height: Math.max(rh + 2, 8),
+                  height: Math.max(rh * 1.2 + 2, 8), 
                   color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
                   opacity: 0.2
                 });

@@ -409,7 +409,6 @@ body{
 
     <div class="card">
       <div class="card-title">📄 1. PDF FLIGHT PACKAGE</div>
-      <!-- 무한루프 방지를 위해 onclick 속성 제거 -->
       <div class="upload-area" id="uploadArea">
         <div class="upload-icon">📁</div>
         <div class="upload-text">
@@ -736,7 +735,6 @@ function rmCustom(i){sel.delete(custom[i]);custom.splice(i,1);renderTags();updBa
 const fi=document.getElementById('fi'),ua=document.getElementById('uploadArea');
 
 /* === 파일 첨부 안되는 버그 수정 부분 시작 === */
-// Div를 클릭할 때 무한 루프가 발생하지 않도록 e.target.id 조건을 걸어서 클릭 이벤트를 제어합니다.
 ua.addEventListener('click', e => {
   if(e.target.id !== 'fi') {
     fi.click();
@@ -746,7 +744,6 @@ ua.addEventListener('click', e => {
 fi.addEventListener('change',e=>{
   if(e.target.files[0]) {
     loadFile(e.target.files[0]);
-    // 같은 파일을 지우고 다시 올릴 수 있도록 input 값을 초기화해 줍니다.
     e.target.value = ''; 
   }
 });
@@ -1241,30 +1238,89 @@ async function runHL(){
           continue; 
         }
 
-        for (const item of lineItems) {
-          const s = cleanAndDecodeItem(item.str, pageOffset); 
-          const tx = item.transform;
-          const itemX = tx[4], itemY = tx[5];
-          const itemW = item.width||0;
-          const itemH = Math.abs(tx[3])||10;
-          const charW = itemW / Math.max(s.length, 1);
+        /* ==========================================
+           ⭐ 업그레이드된 정밀 라인-레벨 키워드 매칭 엔진 ⭐
+           ========================================== */
+        // 단어가 여러 텍스트 박스로 쪼개져 있는 상태에서도 유연하게 매치하기 위해 줄 내 글자를 맵핑합니다.
+        const charMapping = [];
+        for (let i = 0; i < lineItems.length; i++) {
+          const item = lineItems[i];
+          const decodedStr = cleanAndDecodeItem(item.str, pageOffset) || '';
+          
+          if (i > 0) {
+            charMapping.push({ isSeparator: true });
+          }
+          
+          for (let charIdx = 0; charIdx < decodedStr.length; charIdx++) {
+            charMapping.push({
+              itemIndex: i,
+              charIndex: charIdx,
+              char: decodedStr[charIdx]
+            });
+          }
+        }
 
-          for(const kw of keywords){
-            let re;
-            try {
-              re = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`,'gi');
-            } catch(e) {
-              re = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
+        const lineTextFromMapping = charMapping.map(m => m.isSeparator ? ' ' : m.char).join('');
+        const cleanLineText = lineTextFromMapping.replace(/[^A-Za-z0-9]/g, ' ');
+
+        for (const kw of keywords) {
+          // 키워드에 포함된 띄어쓰기를 정규표현식의 유연한 공백/특수문자 패턴으로 치환합니다. (EXC SKED, EXC  SKED 모두 완벽 지원)
+          const escapedKw = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                              .replace(/\s+/g, '[^A-Za-z0-9]+');
+          let re;
+          try {
+            re = new RegExp(`\\b${escapedKw}\\b`, 'gi');
+          } catch(e) {
+            re = new RegExp(escapedKw, 'gi');
+          }
+
+          let m;
+          let lastIndex = -1;
+          while ((m = re.exec(cleanLineText)) !== null) {
+            if (re.lastIndex === lastIndex) {
+              re.lastIndex++;
+              continue;
             }
-            
-            const cleanSourceText = s.replace(/[^A-Za-z0-9]/g, ' ');
-            let m;
-            while((m=re.exec(cleanSourceText))!==null){
-              const rx=(itemX+m.index*charW)*sx;
-              const ry=itemY*sy;
-              const rw=kw.length*charW*sx;
-              const rh=itemH*sy;
-              
+            lastIndex = re.lastIndex;
+
+            const startIdx = m.index;
+            const endIdx = startIdx + m[0].length;
+
+            // 매칭된 글자 범위에 해당하는 item과 charIndex를 수집합니다.
+            const itemMatches = {};
+            for (let c = startIdx; c < endIdx; c++) {
+              const map = charMapping[c];
+              if (map && !map.isSeparator) {
+                if (!itemMatches[map.itemIndex]) {
+                  itemMatches[map.itemIndex] = [];
+                }
+                itemMatches[map.itemIndex].push(map.charIndex);
+              }
+            }
+
+            // 각 텍스트 조각(item)별로 정밀하게 하이라이트 사각형을 그립니다.
+            for (const itemIdxStr of Object.keys(itemMatches)) {
+              const itemIdx = parseInt(itemIdxStr, 10);
+              const charIndices = itemMatches[itemIdx];
+              if (charIndices.length === 0) continue;
+
+              const minCharIdx = Math.min(...charIndices);
+              const maxCharIdx = Math.max(...charIndices);
+              const matchCharCount = maxCharIdx - minCharIdx + 1;
+
+              const item = lineItems[itemIdx];
+              const s = cleanAndDecodeItem(item.str, pageOffset) || '';
+              const tx = item.transform;
+              const itemX = tx[4], itemY = tx[5];
+              const itemW = item.width || 0;
+              const itemH = Math.abs(tx[3]) || 10;
+              const charW = itemW / Math.max(s.length, 1);
+
+              const rx = (itemX + minCharIdx * charW) * sx;
+              const ry = itemY * sy;
+              const rw = matchCharCount * charW * sx;
+              const rh = itemH * sy;
+
               libPage.drawRectangle({
                 x: rx,
                 y: ry - (rh * 0.2), 
@@ -1277,6 +1333,7 @@ async function runHL(){
             }
           }
         }
+        /* ========================================== */
 
         const msaRegex = /---\s*\/\s*(\d{3})\b/i;
         const msaMatch = lineText.match(msaRegex);

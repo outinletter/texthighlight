@@ -1484,8 +1484,104 @@ async function runHL(){
         const coaLibPage = libPages[resolvedCoaPageIdx];
         const {width:coaW,height:coaH}=coaLibPage.getSize();
         const coaVp=coaJsPage.getViewport({scale:1.0});
+        const coaSx=coaW/coaVp.width;
         const coaSy=coaH/coaVp.height;
 
+        /* ==========================================
+           ⭐ 신규 로직: COPY OF ATS FPL 페이지 원본 텍스트 매칭 & 순차적 하이라이트 ⭐
+           ========================================== */
+        // 루트 텍스트를 단어(토큰) 단위로 분리 (알파벳/숫자가 2자 이상인 단어들만 유의미한 것으로 간주)
+        const routeTokens = cleanRoute.replace(/\.\./g, ' ').split(/\s+/).filter(t => t.match(/^[A-Za-z0-9]{2,}$/));
+        
+        // ATS FPL 텍스트 요소들을 위치(Y 내림차순, X 오름차순) 기반으로 정렬
+        const sortedCoaItems = coaContent.items.slice().sort((a,b) => {
+          const ay = a.transform[5], by = b.transform[5];
+          if (Math.abs(ay - by) > 4) return by - ay;
+          return a.transform[4] - b.transform[4];
+        });
+
+        // 원본 텍스트 재구성 및 글자 단위 맵핑 생성
+        const coaCharMapping = [];
+        let fullCoaText = "";
+        for (let i = 0; i < sortedCoaItems.length; i++) {
+          const item = sortedCoaItems[i];
+          const s = cleanAndDecodeItem(item.str, foundCoaPageOffset) || '';
+          if (i > 0) {
+            coaCharMapping.push({ isSeparator: true, char: ' ' });
+            fullCoaText += ' ';
+          }
+          for (let c = 0; c < s.length; c++) {
+            coaCharMapping.push({ itemIndex: i, charIndex: c, char: s[c] });
+            fullCoaText += s[c];
+          }
+        }
+
+        // 검색을 위해 특수문자 제거 후 모두 대문자화
+        const cleanFullCoaText = fullCoaText.replace(/[^A-Za-z0-9]/g, ' ').toUpperCase();
+
+        let searchStartIndex = 0;
+        // 추출된 루트의 단어(토큰)들을 하나씩 순서대로 스캔하여 찾음
+        for (const token of routeTokens) {
+          const escapedToken = token.toUpperCase();
+          const regex = new RegExp(`\\b${escapedToken}\\b`);
+          const textToSearch = cleanFullCoaText.substring(searchStartIndex);
+          const match = regex.exec(textToSearch);
+          
+          if (match) {
+            // 현재 토큰이 발견된 인덱스 범위 계산
+            const matchStart = searchStartIndex + match.index;
+            const matchEnd = matchStart + token.length;
+            
+            // 맵핑 정보를 이용해 해당 글자들의 원본 텍스트 아이템과 문맥 인덱스 수집
+            const itemMatches = {};
+            for (let c = matchStart; c < matchEnd; c++) {
+              const map = coaCharMapping[c];
+              if (map && !map.isSeparator) {
+                if (!itemMatches[map.itemIndex]) itemMatches[map.itemIndex] = [];
+                itemMatches[map.itemIndex].push(map.charIndex);
+              }
+            }
+            
+            // 원본 텍스트 아이템 위치에 맞게 하이라이트 사각형 그리기
+            for (const itemIdxStr of Object.keys(itemMatches)) {
+              const itemIdx = parseInt(itemIdxStr, 10);
+              const charIndices = itemMatches[itemIdx];
+              if (charIndices.length === 0) continue;
+              
+              const minCharIdx = Math.min(...charIndices);
+              const maxCharIdx = Math.max(...charIndices);
+              const matchCharCount = maxCharIdx - minCharIdx + 1;
+              
+              const item = sortedCoaItems[itemIdx];
+              const s = cleanAndDecodeItem(item.str, foundCoaPageOffset) || '';
+              const tx = item.transform;
+              const itemX = tx[4], itemY = tx[5];
+              const itemW = item.width || 0;
+              const itemH = Math.abs(tx[3]) || 10;
+              const charW = itemW / Math.max(s.length, 1);
+              
+              const rx = (itemX + minCharIdx * charW) * coaSx;
+              const ry = itemY * coaSy;
+              const rw = matchCharCount * charW * coaSx;
+              const rh = itemH * coaSy;
+              
+              coaLibPage.drawRectangle({
+                x: rx,
+                y: ry - (rh * 0.2), 
+                width: Math.max(rw, 4),
+                height: Math.max(rh * 1.2, 8), 
+                color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
+                opacity: 0.25
+              });
+              totalHits++;
+            }
+            // 다음 토큰은 발견된 텍스트 이후부터 탐색 (순서 일치성 보장)
+            searchStartIndex = matchEnd;
+          }
+        }
+        /* ========================================== */
+
+        // 기존 로직: 요약 박스를 그려서 시인성을 더욱 높여줌
         const fontSize=9,lineH=fontSize*1.4,padding=8;
         const pageMargin = 30; 
         const maxWidth = coaW - (pageMargin * 2) - (padding * 2); 

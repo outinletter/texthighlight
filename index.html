@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TEXT HIGHLIGHTER v1.0 (Offline Ready)</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Highlighter">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExNSIgZmlsbD0iIzNiODJmNiIvPjxwYXRoIGQ9Ik0xMzYgMTA0aDE1Mmw4OCA4OHYyMDBjMCAxMy4zLTEwLjcgMjQtMjQgMjRIMTM2Yy0xMy4zIDAtMjQtMTAuNy0yNC0yNFYxMjhjMC0xMy4zIDEwLjctMjQgMjQtMjR6IiBmaWxsPSIjZjhmYWZjIiBzdHJva2U9IiMwZjE3MmEiIHN0cm9rZS13aWR0aD0iMjAiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48cGF0aCBkPSJNMjg4IDEwNHY2NGMwIDEzLjMgMTAuNyAyNCAyNCAyNGg2NCIgZmlsbD0iI2NiZDVlMSIgc3Ryb2tlPSIjMGYxNzJhIiBzdHJva2Utd2lkdGg9IjIwIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGxpbmUgeDE9IjE2OCIgeTE9IjE4NCIgeDI9IjI1NiIgeTI9IjE4NCIgc3Ryb2tlPSIjOTRhM2I4IiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48bGluZSB4MT0iMTY4IiB5MT0iMjMyIiB4Mj0iMzEyIiB5Mj0iMjMyIiBzdHJva2U9IiM5NGEzYjgiIHN0cm9rZS13aWR0aD0iMTYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxsaW5lIHgxPSIxNjgiIHkxPSIyODAiIHgyPSIyODAiIHkyPSIyODAiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLXdpZHRoPSIxNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGxpbmUgeDE9IjE2OCIgeTE9IjM3NiIgeDI9IjIzMiIgeTI9IjM3NiIgc3Ryb2tlPSIjOTRhM2I4IiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48bGluZSB4MT0iMTY4IiB5MT0iMzI4IiB4Mj0iMjg4IiB5Mj0iMzI4IiBzdHJva2U9IiM2MGE1ZmEiIHN0cm9rZS13aWR0aD0iMjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwLCAtMTApIj48cGF0aCBkPSJNMzcyIDIwOGwtODAgODAtMjQtOC0xNiAyNCAzMiA4IDggMzIgMjQtMTYtOC0yNCA4MC04MGMxMS0xMSAxMS0yOSAwLTQwLTExLTExLTI5LTExLTQwIDB6IiBmaWxsPSIjMGYxNzJhIi8+PHBhdGggZD0iTTM2MCAyMjBsLTY0IDY0IDEyIDEyIDY0LTY0LTEyLTEyeiIgZmlsbD0iIzNiODJmNiIvPjxwYXRoIGQ9Ik0yNTIgMzA0bDE2LTI0LTE2LTE2LTE2IDI0IDE2IDE2eiIgZmlsbD0iIzYwYTVmYSIvPjwvZz48cGF0aCBkPSJNMzEyIDM2MGwyNC0yNCA4IDI4IDI4LTgtMjAtMzYgMjgtMjhjNi02IDYtMTYgMC0yMnMtMTYtNi0yMiAwbC0yOCAyOC0zNi0yMC04IDI4IDI4IDgtMjQgMjQgMjAgMjB6IiBmaWxsPSIjMGYxNzJhIi8+PC9zdmc+">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExNSIgZmlsbD0iIzNiODJmNiIvPjxwYXRoIGQ9Ik0xMzYgMTA0aDE1Mmw4OCA4OHYyMDBjMCAxMy4zLTEwLjcgMjQtMjQgMjRIMTM2Yy0xMy4zIDAtMjQtMTAuNy0yNC0yNFYxMjhjMC0xMy4zIDEwLjctMjQgMjQtMjR6IiBmaWxsPSIjZjhmYWZjIiBzdHJva2U9IiMwZjE3MmEiIHN0cm9rZS13aWR0aD0iMjAiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48cGF0aCBkPSJNMjg4IDEwNHY2NGMwIDEzLjMgMTAuNyAyNCAyNCAyNGg2NCIgZmlsbD0iI2NiZDVlMSIgc3Ryb2tlPSIjMGYxNzJhIiBzdHJva2Utd2lkdGg9IjIwIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGxpbmUgeDE9IjE2OCIgeTE9IjE4NCIgeDI9IjI1NiIgeTI9IjE4NCIgc3Ryb2tlPSIjOTRhM2I4IiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48bGluZSB4MT0iMTY4IiB5MT0iMjMyIiB4Mj0iMzEyIiB5Mj0iMjMyIiBzdHJva2U9IiM5NGEzYjgiIHN0cm9rZS13aWR0aD0iMTYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxsaW5lIHgxPSIxNjgiIHkxPSIyODAiIHgyPSIyODAiIHkyPSIyODAiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLXdpZHRoPSIxNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGxpbmUgeDE9IjE2OCIgeTE9IjM3NiIgeDI9IjIzMiIgeTI9IjM3NiIgc3Ryb2tlPSIjOTRhM2I4IiBzdHJva2Utd2lkdGg9IjE2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48bGluZSB4MT0iMTY4IiB5MT0iMzI4IiB4Mj0iMjg4IiB5Mj0iMzI4IiBzdHJva2U9IiM2MGE1ZmEiIHN0cm9rZS13aWR0aD0iMjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwLCAtMTApIj48cGF0aCBkPSJNMzcyIDIwOGwtODAgODAtMjQtOC0xNiAyNCAzMiA4IDggMzIgMjQtMTYtOC0yNCA4MC04MGMxMS0xMSAxMS0yOSAwLTQwLTExLTExLTI5LTExLTQwIDB6IiBmaWxsPSIjMGYxNzJhIi8+PHBhdGggZD0iTTM2MCAyMjBsLTY0IDY0IDEyIDEyIDY0LTY0LTEyLTEyeiIgZmlsbD0iIzNiODJmNiIvPjxwYXRoIGQ9Ik0yNTIgMzA0bDE2LTI0LTE2LTE2LTE2IDI0IDE2IDE2eiIgZmlsbD0iIzYwYTVmYSIvPjwvZz48cGF0aCBkPSJNMzEyIDM2MGwyNC0yNCA4IDI4IDI4LTgtMjAtMzYgMjgtMjhjNi02IDYtMTYgMC0yMnMtMTYtNi0yMiAwbC0yOCAyOC0zNi0yMC04IDI4IDI4IDgtMjQgMjQgMjAgMjB6IiBmaWxsPSIjMGYxNzJhIi8+PC9zdmc+">
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{
@@ -301,6 +308,7 @@ body{
   cursor:not-allowed;
 }
 .run-btn{background:#334155;color:#64748b}
+/* Pastel tones for the action buttons */
 .run-btn.active{
   background:linear-gradient(90deg,#a7f3d0,#86efac);
   color:#064e3b;
@@ -807,14 +815,12 @@ function checkKeywordMatch(text, kw) {
 const TEST_KEYWORDS = ["NOTAM", "PACKAGE", "PLAN", "FLIGHT", "KOREAN", "RELEASE", "WEATHER", "AIR", "ROUTE", "ALTN", "INFO"];
 const OFFSETS_TO_TEST = [0, 29, -29, 32, -32];
 
-// Optimized detectPageOffset for extreme speed
 function detectPageOffset(rawText) {
   if (!rawText) return 0;
   let bestOffset = 0;
   let bestMatches = 0; 
   const sampleLen = Math.min(rawText.length, 1500);
   
-  // Fast path: check common offsets first
   for (const offset of OFFSETS_TO_TEST) {
     let decodedSample = "";
     for (let j = 0; j < sampleLen; j++) {
@@ -825,7 +831,7 @@ function detectPageOffset(rawText) {
     for (const kw of TEST_KEYWORDS) {
       if (cleanSample.includes(kw)) matchCount++;
     }
-    if (matchCount >= 3) return offset; // Early exit - huge speed boost
+    if (matchCount >= 3) return offset; 
     if (matchCount > bestMatches) {
       bestMatches = matchCount;
       bestOffset = offset;
@@ -834,7 +840,6 @@ function detectPageOffset(rawText) {
   
   if (bestMatches > 0) return bestOffset;
   
-  // Slow path: check other possible offsets
   for (let i = -120; i <= 120; i++) {
     if (OFFSETS_TO_TEST.includes(i)) continue;
     let decodedSample = "";
@@ -850,7 +855,7 @@ function detectPageOffset(rawText) {
       bestMatches = matchCount;
       bestOffset = i;
     }
-    if (bestMatches >= 3) break; // Early exit
+    if (bestMatches >= 3) break; 
   }
   
   return bestOffset;
@@ -879,7 +884,6 @@ function cleanAndDecodeItem(str, offset) {
     }
   }
   
-  // 강제로 영문, 숫자, 기본 기호만 남기고 모두 공백으로 치환
   return finalStr.replace(/[^A-Za-z0-9\s\/\.\-\(\)]/g, ' ');
 }
 
@@ -896,7 +900,6 @@ async function extractReleaseAirportsByRule2(pdfJsDoc) {
       
       const isDispatchReleasePage = /DISPATCH\s+RELEASE\s+INFORMATION/i.test(decodedRawText) || /I\s+HEREBY\s+RELEASE/i.test(decodedRawText);
 
-      // ICAO 코드 추출
       if (airports.length === 0) {
         const m1 = /\bFLIGHT\s+RELEASE\s+[A-Z0-9]+\s+([A-Z]{4})[\/-]([A-Z]{4})\b/i.exec(decodedRawText);
         if (m1) {
@@ -914,7 +917,6 @@ async function extractReleaseAirportsByRule2(pdfJsDoc) {
         }
       }
 
-      // IATA 코드 추출 (오직 Dispatch Release 페이지에서만 가장 먼저 나오는 3/3 패턴 탐색)
       if (iataAirports.length === 0 && isDispatchReleasePage) {
         const mIata = /\b([A-Z]{3})\s*[\/-]\s*([A-Z]{3})\b/g;
         let match;
@@ -929,7 +931,6 @@ async function extractReleaseAirportsByRule2(pdfJsDoc) {
         }
       }
 
-      // 혹시라도 위에서 못 찾았을 경우, 패키지 헤더(KE0497 / ICN / DEL)를 통한 백업 추출
       if (iataAirports.length === 0) {
          const mHeader = /\b(?:KAL|KE)\s*\d+\s*\/\s*([A-Z]{3})\s*[\/-]\s*([A-Z]{3})\b/i.exec(decodedRawText);
          if (mHeader) {
@@ -1506,6 +1507,7 @@ async function runHL(){
     }
 
     let routeTokens = [];
+    let atsTokensList = [];
 
     const cfpPageIdx=bmPages['CFP PLAN'];
     let coaPageIdx=bmPages['COPY OF ATS'];
@@ -1683,6 +1685,7 @@ async function runHL(){
           }
 
           const validAtsWords = atsWordsToHighlight.filter(w => w.text.toUpperCase() !== "DCT" && !/^\d+$/.test(w.text));
+          atsTokensList = validAtsWords.map(w => w.text.toUpperCase());
 
           if (validAtsWords.length > 0) {
               highlightedSomething = true;
@@ -1746,6 +1749,7 @@ async function runHL(){
               }
           }
           if (currentToken) coaTokens.push(currentToken);
+          atsTokensList = coaTokens.map(t => t.text.toUpperCase());
 
           for (const rToken of routeTokens) {
               const expectedToken = rToken.toUpperCase();
@@ -1805,8 +1809,7 @@ async function runHL(){
     runBtn.className='action-btn dl-btn active';
     runBtn.innerHTML='DOWNLOAD PDF FILE';
     
-    setStatus('done',`Completed! ${numPages} pages, ${totalHits} elements highlighted, ${Object.keys(bmPages).length} bookmarks set.`);
-    
+    setStatus('done',`Completed! ${numPages} pages processed, ${totalHits} elements highlighted.`);
     document.getElementById('previewCard').style.display='block';
     
     dlPDF();

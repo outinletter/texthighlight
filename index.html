@@ -866,6 +866,32 @@ function deduplicateWords(text) {
   return cleanWords.join(' ');
 }
 
+function calculateSimilarity(s1, s2) {
+  let longer = s1.toLowerCase();
+  let shorter = s2.toLowerCase();
+  if (s1.length < s2.length) { longer = s2.toLowerCase(); shorter = s1.toLowerCase(); }
+  let longerLength = longer.length;
+  if (longerLength === 0) return 1.0;
+  let costs = [];
+  for (let i = 0; i <= longer.length; i++) {
+    let lastValue = i;
+    for (let j = 0; j <= shorter.length; j++) {
+      if (i === 0) costs[j] = j;
+      else {
+        if (j > 0) {
+          let newValue = costs[j - 1];
+          if (longer.charAt(i - 1) !== shorter.charAt(j - 1))
+            newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+          costs[j - 1] = lastValue;
+          lastValue = newValue;
+        }
+      }
+    }
+    if (i > 0) costs[shorter.length] = lastValue;
+  }
+  return (longerLength - costs[shorter.length]) / parseFloat(longerLength);
+}
+
 async function extractReleaseAirportsByRule2(pdfJsDoc) {
   const airports = [];
   try {
@@ -1455,7 +1481,8 @@ async function runHL(){
       if (detectedAirports.length === 2) {
         const depCode = detectedAirports[0];
         const arrCode = detectedAirports[1];
-        const dynamicRouteRegex = new RegExp(`(${depCode}\\s+[A-Z0-9]+\\s+[A-Z0-9\\s\\.]*?\\.\\.\\s*${arrCode}\\b)`, 'i');
+        // Capture from DEP to DEST spanning multiple lines with a bounding length to avoid excessive capture
+        const dynamicRouteRegex = new RegExp(`\\b(${depCode}\\b(?:[\\s\\S]{1,600}?)\\b${arrCode})\\b`, 'i');
         const rMatch = cfpFullTextWithNewlines.match(dynamicRouteRegex);
         if (rMatch) {
           extractedRoute = rMatch[1].trim();
@@ -1463,12 +1490,12 @@ async function runHL(){
       }
 
       if (!extractedRoute) {
-        const fallbackRouteRegex = /(KSEA\s+[A-Z0-9]+\s+[A-Z0-9\s\.]*?\.\.\s*RKSI\b)/i;
+        const fallbackRouteRegex = /(KSEA\b[\s\S]{1,600}?\bRKSI)/i;
         const fbMatch = cfpFullTextWithNewlines.match(fallbackRouteRegex);
         if (fbMatch) {
           extractedRoute = fbMatch[1].trim();
         } else {
-          const genericRouteRegex = /([A-Z]{4}\s+[A-Z0-9]+\s+[A-Z0-9\\s\\.]*?\\.\\.\\s*[A-Z]{4}\\b)/i;
+          const genericRouteRegex = /([A-Z]{4}\b[\s\S]{1,600}?\b[A-Z]{4})/i;
           const genMatch = cfpFullTextWithNewlines.match(genericRouteRegex);
           if (genMatch) {
             extractedRoute = genMatch[1].trim();
@@ -1477,7 +1504,15 @@ async function runHL(){
       }
 
       if(extractedRoute) {
-        const cleanRoute = deduplicateWords(extractedRoute);
+        // Exclude unrelated information and tokenize
+        const noiseWords = ['FLIGHT', 'PLAN', 'FUEL', 'TIME', 'WIND', 'TEMP', 'DIST', 'COMP', 'FREQ', 'RMK', 'ALTN', 'AWY', 'POS', 'LAT', 'LONG'];
+        const rawTokens = deduplicateWords(extractedRoute)
+            .replace(/[^A-Za-z0-9]/g, ' ')
+            .split(/\s+/)
+            .filter(t => t.length >= 2 && !noiseWords.includes(t.toUpperCase()));
+
+        const routeTokens = rawTokens;
+        const cleanRoute = routeTokens.join(' ');
 
         const coaJsPage=await pdfJsDoc.getPage(resolvedCoaPageIdx+1);
         const coaContent=await coaJsPage.getTextContent();
@@ -1490,51 +1525,77 @@ async function runHL(){
         /* ==========================================
            ⭐ 신규 로직: COPY OF ATS FPL 페이지 원본 텍스트 매칭 & 순차적 하이라이트 ⭐
            ========================================== */
-        // 루트 텍스트를 단어(토큰) 단위로 분리 (알파벳/숫자가 2자 이상인 단어들만 유의미한 것으로 간주)
-        const routeTokens = cleanRoute.replace(/\.\./g, ' ').split(/\s+/).filter(t => t.match(/^[A-Za-z0-9]{2,}$/));
         
-        // ATS FPL 텍스트 요소들을 위치(Y 내림차순, X 오름차순) 기반으로 정렬
+        // ATS FPL 텍스트 요소들을 위치 기반 정렬
         const sortedCoaItems = coaContent.items.slice().sort((a,b) => {
           const ay = a.transform[5], by = b.transform[5];
           if (Math.abs(ay - by) > 4) return by - ay;
           return a.transform[4] - b.transform[4];
         });
 
-        // 원본 텍스트 재구성 및 글자 단위 맵핑 생성
+        // 원본 텍스트 재구성 및 글자 단위 맵핑
         const coaCharMapping = [];
-        let fullCoaText = "";
         for (let i = 0; i < sortedCoaItems.length; i++) {
           const item = sortedCoaItems[i];
           const s = cleanAndDecodeItem(item.str, foundCoaPageOffset) || '';
           if (i > 0) {
             coaCharMapping.push({ isSeparator: true, char: ' ' });
-            fullCoaText += ' ';
           }
           for (let c = 0; c < s.length; c++) {
             coaCharMapping.push({ itemIndex: i, charIndex: c, char: s[c] });
-            fullCoaText += s[c];
           }
         }
 
-        // 검색을 위해 특수문자 제거 후 모두 대문자화
-        const cleanFullCoaText = fullCoaText.replace(/[^A-Za-z0-9]/g, ' ').toUpperCase();
+        // COA 텍스트 토큰화 (퍼지 매칭을 위함)
+        const coaTokens = [];
+        let currentToken = null;
+        for (let i = 0; i < coaCharMapping.length; i++) {
+          const map = coaCharMapping[i];
+          if (map.isSeparator || map.char === ' ' || map.char === '\n') {
+            if (currentToken) {
+              coaTokens.push(currentToken);
+              currentToken = null;
+            }
+          } else {
+            if (!currentToken) currentToken = { text: '', startIdx: i, endIdx: i, chars: [] };
+            currentToken.text += map.char;
+            currentToken.chars.push(i);
+            currentToken.endIdx = i;
+          }
+        }
+        if (currentToken) coaTokens.push(currentToken);
 
         let searchStartIndex = 0;
-        // 추출된 루트의 단어(토큰)들을 하나씩 순서대로 스캔하여 찾음
-        for (const token of routeTokens) {
-          const escapedToken = token.toUpperCase();
-          const regex = new RegExp(`\\b${escapedToken}\\b`);
-          const textToSearch = cleanFullCoaText.substring(searchStartIndex);
-          const match = regex.exec(textToSearch);
-          
-          if (match) {
-            // 현재 토큰이 발견된 인덱스 범위 계산
-            const matchStart = searchStartIndex + match.index;
-            const matchEnd = matchStart + token.length;
+        let matchedTokensCount = 0;
+        const unmatchedTokens = [];
+        const fuzzyMatchedLog = [];
+
+        // 추출된 루트 토큰 순서대로 순차 검색 (80% 유사도 허용)
+        for (const rToken of routeTokens) {
+          const expectedToken = rToken.toUpperCase();
+          let bestMatchIdx = -1;
+          let highestSim = 0;
+
+          // 현재 위치에서부터 최대 100개 토큰 이내에서 가장 유사도가 높은 위치 스캔
+          for (let i = searchStartIndex; i < Math.min(searchStartIndex + 100, coaTokens.length); i++) {
+            const cToken = coaTokens[i].text.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (cToken.length < 2) continue;
             
-            // 맵핑 정보를 이용해 해당 글자들의 원본 텍스트 아이템과 문맥 인덱스 수집
+            let sim = calculateSimilarity(expectedToken, cToken);
+            if (sim >= 0.8 && sim > highestSim) {
+              highestSim = sim;
+              bestMatchIdx = i;
+              if (sim === 1.0) break; // 완벽 매칭시 스캔 중단
+            }
+          }
+
+          if (bestMatchIdx !== -1) {
+            matchedTokensCount++;
+            fuzzyMatchedLog.push({ expected: expectedToken, matched: coaTokens[bestMatchIdx].text, sim: highestSim });
+            
+            const matchedCToken = coaTokens[bestMatchIdx];
             const itemMatches = {};
-            for (let c = matchStart; c < matchEnd; c++) {
+            for (let c of matchedCToken.chars) {
               const map = coaCharMapping[c];
               if (map && !map.isSeparator) {
                 if (!itemMatches[map.itemIndex]) itemMatches[map.itemIndex] = [];
@@ -1542,7 +1603,7 @@ async function runHL(){
               }
             }
             
-            // 원본 텍스트 아이템 위치에 맞게 하이라이트 사각형 그리기
+            // 매칭된 텍스트 아이템 사각형 그리기
             for (const itemIdxStr of Object.keys(itemMatches)) {
               const itemIdx = parseInt(itemIdxStr, 10);
               const charIndices = itemMatches[itemIdx];
@@ -1570,15 +1631,27 @@ async function runHL(){
                 y: ry - (rh * 0.2), 
                 width: Math.max(rw, 4),
                 height: Math.max(rh * 1.2, 8), 
-                color: PDFLib.rgb(hlRGB[0], hlRGB[1], hlRGB[2]),
-                opacity: 0.25
+                color: PDFLib.rgb(1.0, 1.0, 0.0), // 노란색(Yellow) 하이라이트
+                opacity: 0.4
               });
               totalHits++;
             }
-            // 다음 토큰은 발견된 텍스트 이후부터 탐색 (순서 일치성 보장)
-            searchStartIndex = matchEnd;
+            // 다음 검색은 현재 찾은 토큰 바로 다음부터 진행 (순서 보장)
+            searchStartIndex = bestMatchIdx + 1;
+          } else {
+            unmatchedTokens.push(expectedToken);
           }
         }
+        
+        console.log("========== ATS FPL ROUTE EXTRACTION & MATCHING ==========");
+        console.log("EXTRACTED ROUTE:", routeTokens.join(" "));
+        console.log(`MATCHED TOKENS: ${matchedTokensCount} / ${routeTokens.length}`);
+        if (unmatchedTokens.length > 0) {
+          console.log("UNMATCHED TOKENS:", unmatchedTokens.join(", "));
+        } else {
+          console.log("ALL TOKENS MATCHED SUCCESSFULLY!");
+        }
+        console.log("=========================================================");
         /* ========================================== */
 
         // 기존 로직: 요약 박스를 그려서 시인성을 더욱 높여줌

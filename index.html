@@ -132,7 +132,13 @@ body{
   border-style:solid;
   background:rgba(16,185,129,.05);
 }
-.upload-area input{display:none}
+.upload-area input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
 .upload-text{flex:1; min-width:0;}
 .upload-label{font-size:12.5px;color:#cbd5e1;font-weight:600;white-space:normal;line-height:1.4;cursor:pointer}
 .upload-sub{font-size:10.5px;color:#64748b;margin-top:2px}
